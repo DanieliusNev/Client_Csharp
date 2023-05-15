@@ -1,0 +1,40 @@
+﻿@page "/"
+@using global::Shared.Models
+@using BlazorWasm.Service
+@inject PackageService packageService
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+@if (packages != null)
+{
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Weight</th>
+            <th>Reference Number</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var package in packages)
+        {
+            <tr>
+                <td>@package.Name</td>
+                <td>@package.Weight</td>
+                <td>@package.ReferenceNumber</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<PackageBox> packages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        packages = await packageService.GetPackagesAsync();
+    }
+}
