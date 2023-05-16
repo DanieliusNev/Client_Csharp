@@ -1,19 +1,179 @@
 ﻿@page "/counter"
 
-<PageTitle>Counter</PageTitle>
+@using System.Globalization
 
-<h1>Counter</h1>
 
-<p role="status">Current count: @currentCount</p>
+@*@inherits CalendarBase
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@{
+    FirstDate = new DateTime(FirstDate.Year, FirstDate.Month, 1);
+    int firstDayWeek = (int)FirstDate.DayOfWeek;
+    StateCase State = StateCase.Before;
+    DateTime LastDay = new DateTime(FirstDate.Year, FirstDate.Month, 1).AddMonths(1);
+    DateTime DayCounter = FirstDate;
+    DateTime Today = DateTime.Today;
+    string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
+    int OffsetCell = 0;
+    string? isHidden = DisplayedView == DisplayedView.Monthly ? null : "hidden-element";
+    string? CSSbackground = null;
+    string? CSSToday = null;
 
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
+    // The sorting must be done each time we redraw in case the user moves the spots
+    if (TasksList != null)
     {
-        currentCount++;
+        TasksList = TasksList.OrderBy(x => x.DateStart)
+                             .ThenByDescending(x => x.DateEnd).ToArray();
+    }
+}
+
+<div class="@isHidden monthly-calendar" style="@Style">
+
+    @for (var i = 0; i < 7; i++)
+    {
+        var d = Dates.GetNumOfDay(i);
+
+        <span class="header-name noselect" style="@HeaderStyle">
+            @dayNames[d]
+        </span>
     }
 
-}
+    @for (var i = 0; i < 7; i++)
+    {
+        var d = FirstDate.AddDays(i);
+
+        CSSbackground = GetBackground(d);
+        CSSToday = d.Date == Today.Date ? "monthly-today" : null;
+
+        <div class="fade-in monthly-day noselect @CSSToday"
+             style="@CSSbackground"
+             ondragover="event.preventDefault();"
+             @onclick="e => ClickDayInternal(e, d)"
+             @ondrop="() => HandleDayOnDrop(d)">
+            @(d.Day.ToString())
+        </div>
+    }
+
+    @if (TasksList != null)
+    {
+        // occupiedPosition accumulates the number of tasks in a cell
+        var occupiedPosition = new TaskPosition[8]; // One extra day for calculation purposes
+
+        string? classPosition;
+        string taskContent = "";
+        string? taskComment = null;
+        bool onmMultiLine = false;
+        bool draggable = false;
+
+        for (var k = 0; k < TasksList.Length; k++)
+        {
+            Tasks t = TasksList[k];
+
+            if ((t.DateStart.Date <= FirstDate && FirstDate <= t.DateEnd.Date) ||
+                (t.DateStart.Date > FirstDate && LastDay > t.DateEnd.Date) ||
+                (t.DateStart.Date < LastDay && LastDay <= t.DateEnd.Date))
+            {
+                draggable = t.NotBeDraggable ? false : Draggable;
+
+                // Reframes dates in the month
+                DateTime Start = t.DateStart.Date < FirstDate ? FirstDate : t.DateStart.Date;
+                DateTime End = t.DateEnd.Date >= LastDay ? LastDay.AddDays(-1) : t.DateEnd.Date;
+
+                int x = (int)(Start.Date - FirstDate.Date).TotalDays;
+                int y = 2;
+                int s = (int)(End.Date - Start.Date).TotalDays + 1;
+
+                classPosition = null;
+
+                var position = occupiedPosition[x];
+
+                                    if (position.Top == false)
+                    {
+                        for (int i = x; i < x + s; ++i)
+                        {
+                            occupiedPosition[i].Top = true;
+                        }
+                        classPosition = "monthly-task-first";
+                    }
+                    else if (position.Center == false)
+                    {
+                        for (int i = x; i < x + s; ++i)
+                        {
+                            occupiedPosition[i].Center = true;
+                        }
+                        classPosition = "monthly-task-second";
+                    }
+
+                    string borderClass = "border-start";
+                    do
+                    {
+                        string row = $"grid-column:{x + 1} / span {s}; grid-row:{y};";
+
+                        if (classPosition != null)
+                        {
+                            if (PriorityDisplay == PriorityLabel.Code)
+                            {
+                                taskContent = string.IsNullOrWhiteSpace(t.Code) ? t.Caption : t.Code;
+                            }
+                            else
+                            {
+                                taskContent = string.IsNullOrWhiteSpace(t.Caption) ? t.Code : t.Caption;
+                            }
+
+                            // If there is time, add start time at the beginning
+                            if (t.DateStart.Hour + t.DateStart.Minute > 0)
+                            {
+                                taskContent = $"{t.DateStart.ToString("t")} {taskContent}";
+                            }
+
+                            taskComment = string.IsNullOrWhiteSpace(t.Comment) ? null : t.Comment;
+
+                            string taskColor = Colors.GetHatching(t.FillStyle, t.Color);
+                            taskColor = taskColor + $"color:{t.ForeColor}";
+
+                            <div class="fade-in monthly-task @borderClass cursor-pointer @classPosition"
+                                 style="@row @taskColor"
+                                 title="@taskComment"
+                                 draggable="@draggable.ToString()"
+                                 @onclick="e => ClickTaskInternal(e, t.ID, Start)"
+                                 @ondragstart="() => HandleDragStart(e, t.ID)">
+                                @taskContent
+                            </div>
+                        }
+                        else
+                        {
+                            // More than 2 tasks in cell => display "more..."
+                            <div class="fade-in monthly-more-tasks noselect"
+                                 style=@($"grid-column:{x + 1} / span 1; grid-row:{y}; {@GetBackground(Start)}")
+                                 @onclick="e => ClickAllDayInternal(e, Start)">
+                                @($"+ {occupiedPosition[x].Counter - 1} ...")
+                            </div>
+                        }
+
+                        onmMultiLine = false;
+                        if (x + s >= 7)
+                        {
+                            onmMultiLine = true;
+
+                            Start = Start.AddDays(7 - x);
+                            End = t.DateEnd.Date >= LastDay ? LastDay.AddDays(-1) : t.DateEnd.Date;
+
+                            x = 0;
+                            y++;
+                            s = (int)(End.Date - Start.Date).TotalDays + 1;
+
+                            borderClass = "";
+                        }
+
+                    } while (onmMultiLine);
+
+                    for (var d = x; d < x + s; d++)
+                    {
+                        occupiedPosition[d].Counter++;
+                    }
+                }
+            }
+        }
+    }
+</div>*@
+
+

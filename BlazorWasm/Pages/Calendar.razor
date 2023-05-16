@@ -1,0 +1,78 @@
+﻿@page "/Calendar"
+@using System.Linq
+@using global::Shared.Calendar
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            @for (int i = 0; i < 7; i++)
+            {
+                var currentDate = WeekStart.AddDays(i);
+                <th>@currentDate.ToString("dddd")</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (int hour = 0; hour < 24; hour++)
+        {
+            <tr>
+                <td>@hour:00</td>
+                @for (int i = 0; i < 7; i++)
+                {
+                    var currentDate = WeekStart.AddDays(i);
+                    <td>
+                        @if (EventsByHour.ContainsKey(currentDate) && EventsByHour[currentDate].ContainsKey(hour))
+                        {
+                            foreach (var evt in EventsByHour[currentDate][hour])
+                            {
+                                <div class="event">
+                                    <span>@evt.Title</span>
+                                    <span>@evt.Description</span>
+                                </div>
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public List<CalendarEvent> Events { get; set; }
+
+    private Dictionary<DateTime, Dictionary<int, List<CalendarEvent>>> EventsByHour { get; set; }
+
+    [Parameter]
+    public DateTime WeekStart { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        EventsByHour = new Dictionary<DateTime, Dictionary<int, List<CalendarEvent>>>();
+        if (Events != null)
+        {
+            foreach (var evt in Events)
+            {
+                var startDate = evt.StartDate.Date;
+                var startHour = evt.StartDate.Hour;
+
+                if (!EventsByHour.ContainsKey(startDate))
+                {
+                    EventsByHour[startDate] = new Dictionary<int, List<CalendarEvent>>();
+                }
+
+                if (!EventsByHour[startDate].ContainsKey(startHour))
+                {
+                    EventsByHour[startDate][startHour] = new List<CalendarEvent>();
+                }
+
+                EventsByHour[startDate][startHour].Add(evt);
+            }
+        }
+    }
+}
+
+
+
