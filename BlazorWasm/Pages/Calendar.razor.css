@@ -25,3 +25,7 @@
     margin: 5px;
     padding: 5px;
 }
+.to-do-box{
+    border: 1px solid #ccc;
+    background-color: #b6effb;
+}
