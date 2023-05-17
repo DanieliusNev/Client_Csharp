@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazorWasm;
 using BlazorWasm.Service;
+using BlazorWasm.Services;
+using BlazorWasm.Services.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -9,6 +11,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<PackageService>();
+builder.Services.AddScoped<IAuthService, JwtAuthService>();
+
 /*builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });#2#*/
 
 builder.Services.AddScoped(sp => new HttpClient() { BaseAddress = new Uri("http://localhost:8080/") });
