@@ -8,7 +8,11 @@ namespace BlazorWasm.Services.Http;
 
 public class JwtAuthService : IAuthService
 {
-    private readonly HttpClient client = new ();
+    private readonly HttpClient client;
+    public JwtAuthService(HttpClient httpClient)
+    {
+        client = httpClient;
+    }
 
     // this private variable for simple caching
     public static string? Jwt { get; private set; } = "";
@@ -68,9 +72,8 @@ public class JwtAuthService : IAuthService
     public async Task RegisterAsync(User user)
     {
         string userAsJson = JsonSerializer.Serialize(user);
-        Console.Out.Write(userAsJson);
         StringContent content = new(userAsJson, Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await client.PostAsync("https://localhost:8080/auth/register", content);
+        HttpResponseMessage response = await client.PostAsync("https://localhost:8080/register", content);
         string responseContent = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
