@@ -7,19 +7,20 @@ public class Exercise
 {
     [JsonIgnore]
     public int Id { get; set; }
-    
+    [JsonPropertyName("title")]
     public string Title { get; set; }
-    
-    public DateOnly Date { get; set; }
-    
+    [JsonPropertyName("date")]
+    public DateTime Date { get; set; }
     public int UserId { get; set; }
 
-    public Exercise(string title, DateOnly date, int idUser)
+    public Exercise(string title, DateTime date, int idUser)
     {
+        
         Title = title;
-        Date = date;
+        Date = date.Date; // Set only the date component, without the time
         UserId = idUser;
     }
+
 
     public Exercise()
     {

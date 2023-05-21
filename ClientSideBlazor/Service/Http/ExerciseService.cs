@@ -21,7 +21,7 @@ public class ExerciseService : IExerciseService
     }
 
 
-    public async Task<bool> RegisterExerciseAsync(string title, DateOnly date)
+    public async Task<bool> RegisterExerciseAsync(string title, DateTime date)
     {
         try
         {
@@ -44,6 +44,26 @@ public class ExerciseService : IExerciseService
             return false;
         }
     }
+    public async Task<List<Exercise>> GetUserExercisesAsync(long userId)
+    {
+        var response = await _httpClient.GetAsync($"http://localhost:8080/exercises/{userId}");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(content);
+            var exercises = JsonSerializer.Deserialize<List<Exercise>>(content);
+            foreach (var exercise in exercises)
+            {
+                Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");
+            }
+            return exercises;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
 
     public UserState GetUserState()
     {

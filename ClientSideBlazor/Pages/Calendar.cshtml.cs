@@ -1,58 +1,68 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Http;
+using Shared.Models;
 using Shared.Calendar;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BlazorWasm.Services;
 
 namespace ClientSideBlazor.Pages
 {
     public class CalendarModel : PageModel
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IExerciseService _exerciseService;
 
         public List<CalendarEvent> Events { get; set; }
         public Dictionary<DateTime, List<CalendarEvent>> EventsByDay { get; set; }
         public Dictionary<DateTime, List<string>> ToDoBoxes { get; set; }
         public DateTime WeekStart { get; set; }
+        public List<Exercise> UserExercises { get; set; }
 
-        public CalendarModel(IHttpContextAccessor httpContextAccessor)
+        public CalendarModel(IHttpContextAccessor httpContextAccessor, IExerciseService exerciseService)
         {
             _httpContextAccessor = httpContextAccessor;
+            _exerciseService = exerciseService;
             ToDoBoxes = GetToDoBoxesFromSession();
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
-            // Sample data
-            Events = new List<CalendarEvent>
-            {
-                new CalendarEvent { Title = "Event 1", Description = "Event 1 Description", StartDate = DateTime.Now.Date },
-                new CalendarEvent { Title = "Event 2", Description = "Event 2 Description", StartDate = DateTime.Now.Date.AddDays(1) },
-                new CalendarEvent { Title = "Event 3", Description = "Event 3 Description", StartDate = DateTime.Now.Date.AddDays(2) }
-            };
-
             WeekStart = DateTime.Now.Date;
-
             EventsByDay = new Dictionary<DateTime, List<CalendarEvent>>();
 
-            if (Events != null)
+            UserState userState = _exerciseService.GetUserState();
+            int userId = userState.Id; // Get the logged-in user's ID
+            List<Exercise> userExercises = await _exerciseService.GetUserExercisesAsync(userId);
+    
+            foreach (var exercise in userExercises)
             {
-                foreach (var evt in Events)
+                Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");
+            }
+            foreach (var exercise in userExercises)
+            {
+                DateTime exerciseDate = DateTime.Parse(exercise.Date.ToString()); // Convert DateOnly to DateTime
+
+                if (!EventsByDay.ContainsKey(exerciseDate))
                 {
-                    var startDate = evt.StartDate.Date;
-
-                    if (!EventsByDay.ContainsKey(startDate))
-                    {
-                        EventsByDay[startDate] = new List<CalendarEvent>();
-                    }
-
-                    EventsByDay[startDate].Add(evt);
+                    EventsByDay[exerciseDate] = new List<CalendarEvent>();
                 }
+
+                EventsByDay[exerciseDate].Add(new CalendarEvent
+                {
+                    Title = exercise.Title,
+                    StartDate = exerciseDate
+                });
             }
         }
 
-        public IActionResult OnPost(string date, string newToDo)
+
+
+
+        public IActionResult OnPostAddToDo(string date, string newToDo)
         {
             var selectedDate = DateTime.Parse(date);
 
@@ -64,8 +74,7 @@ namespace ClientSideBlazor.Pages
             ToDoBoxes[selectedDate].Add(newToDo);
 
             SaveToDoBoxesToSession(ToDoBoxes);
-
-            // Redirect to the same page after adding the to-do
+            
             return RedirectToPage("/Calendar");
         }
 

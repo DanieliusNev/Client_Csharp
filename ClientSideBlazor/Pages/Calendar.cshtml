@@ -1,5 +1,11 @@
-﻿@page "/Calendar"
+﻿@page
 @model ClientSideBlazor.Pages.CalendarModel
+
+@{
+    ViewData["Title"] = "Calendar";
+}
+
+<h3>Calendar</h3>
 
 <table class="table table-bordered">
     <thead>
@@ -24,16 +30,14 @@
                             foreach (var evt in Model.EventsByDay[currentDate])
                             {
                                 <div class="event">
-                                    <span>@evt.Title</span>
-                                    <span>@evt.Description</span>
+                                    <span class="event-title">@evt.Title</span>
                                 </div>
                             }
                         }
                         <div class="add-box-container">
-                            <form method="post" onsubmit="return false;">
-                                <input type="hidden" name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
+                            <form method="post" asp-page-handler="AddToDo" asp-route-date="@currentDate.ToString("yyyy-MM-dd")">
                                 <input type="text" name="newToDo" placeholder="Enter a new to-do" />
-                                <button type="button" onclick="addTodo('@currentDate.ToString("yyyy-MM-dd")')">Add</button>
+                                <button type="submit">Add</button>
                             </form>
                         </div>
                         <div id="todoBoxContainer-@currentDate.ToString("yyyy-MM-dd")">
@@ -54,26 +58,43 @@
     </tbody>
 </table>
 
-<script>
-    function addTodo(date) {
-        var input = document.querySelector('input[name="newToDo"]');
-        var todo = input.value.trim();
-        if (todo !== "") {
-            var container = document.querySelector('#todoBoxContainer-' + date);
-            var div = document.createElement('div');
-            div.className = 'to-do-box';
-            div.innerHTML = '<span>' + todo + '</span>';
-            container.appendChild(div);
-            input.value = "";
-        }
-    }
-</script>
-
 <style>
+    .day-box {
+        padding: 10px;
+    }
+    
+    .event {
+        background-color: lightblue;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    
+    .event-title {
+        font-weight: bold;
+    }
+    
+    .add-box-container {
+        margin-top: 10px;
+    }
+    
     .to-do-box {
-        border: 1px solid #ccc;
-        background-color: #b6effb;
-        margin-top: 2px;
-        margin-bottom: 2px;
+        background-color: lightgray;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 5px;
     }
 </style>
+
+
+@section Scripts {
+    <script>
+        function addTodo() {
+            var input = document.querySelector('input[name="newToDo"]');
+            var todo = input.value.trim();
+            if (todo !== "") {
+                input.parentNode.submit();
+            }
+        }
+    </script>
+}

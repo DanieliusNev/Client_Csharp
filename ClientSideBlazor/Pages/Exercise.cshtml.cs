@@ -18,7 +18,7 @@ public class ExerciseModel : PageModel
         _exerciseService = exerciseService;
     }
 
-    public async Task<IActionResult> OnPostAsync(string title, DateOnly date)
+    public async Task<IActionResult> OnPostAsync(string title, DateTime date)
     {
             
         try
