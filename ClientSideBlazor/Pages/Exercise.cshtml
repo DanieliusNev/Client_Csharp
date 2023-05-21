@@ -1,0 +1,40 @@
+﻿@page
+@model ClientSideBlazor.Pages.ExerciseModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<h3>Register Exercise</h3>
+<body>
+<form method="post">
+    <div class="form-container">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required autocomplete="title">
+        </div>
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required autocomplete="date">
+        </div>
+
+        <button type="submit" class="btn-register">Register Exercise</button>
+    </div>
+</form>
+@if (Model.IsSuccess)
+    {
+        <p class="success-message">Registration successful!</p>
+    }
+    else if (Model.ErrorMessage2 != null)
+    {
+        <p class="error-message">Error occurred during registration: @Model.ErrorMessage2</p>
+    }
+</body>
+</html>
+

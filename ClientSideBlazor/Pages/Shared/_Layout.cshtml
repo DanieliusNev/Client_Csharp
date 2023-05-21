@@ -57,6 +57,13 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-page="/Calendar">Calendar</a>
                     </li>
+                    @if (GetUserState() != null)
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link text-dark" asp-area="" asp-page="/Exercise">Exercise</a>
+                                                </li>
+                                        }
+                    
                     
                 </ul>
             </div>
