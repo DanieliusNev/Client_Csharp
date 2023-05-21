@@ -1,4 +1,6 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Net;
+using System.Net.Http.Json;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -71,14 +73,31 @@ public class JwtAuthService : IAuthService
 
     public async Task RegisterAsync(User user)
     {
-        string userAsJson = JsonSerializer.Serialize(user);
+        
+        /*string userAsJson = JsonSerializer.Serialize(user);
         StringContent content = new(userAsJson, Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await client.PostAsync("https://localhost:8080/register", content);
+        HttpResponseMessage response = await client.PostAsJsonAsync("http://localhost:8080/register", user);
         string responseContent = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception(responseContent);
+            throw new Exception(response.ReasonPhrase);
+        }*/
+        string userAsJson = JsonSerializer.Serialize(user);
+        StringContent content = new(userAsJson, Encoding.UTF8, "application/json");
+
+        // Add CORS headers
+        client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+        client.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
+        client.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, enctype");
+        client.DefaultRequestHeaders.Add("Access-Control-Max-Age", "3600");
+
+        HttpResponseMessage response = await client.PostAsJsonAsync("http://localhost:8080/register", user);
+        string responseContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception(response.ReasonPhrase);
         }
     }
 

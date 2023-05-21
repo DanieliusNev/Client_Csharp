@@ -5,7 +5,8 @@ namespace Shared.Models;
 
 public class User
 {
-    /*public int Id { get; set; }*/
+    [JsonIgnore]
+    public int Id { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }
 
@@ -18,6 +19,4 @@ public class User
     public User()
     {
     }
-    /*[JsonIgnore]
-    public ICollection<Post> Posts { get; set; }*/
 }

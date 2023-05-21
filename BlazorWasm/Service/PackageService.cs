@@ -14,7 +14,9 @@ public class PackageService
 
     public async Task<IEnumerable<PackageBox>> GetPackagesAsync()
     {
-        var result = await _httpClient.GetFromJsonAsync<IEnumerable<PackageBox>>("http://localhost:8080/report");
+         var result = await _httpClient.GetFromJsonAsync<IEnumerable<PackageBox>>("http://localhost:8080/report");
         return result;
     }
+    
+    
 }
