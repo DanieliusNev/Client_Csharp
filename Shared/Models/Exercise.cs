@@ -12,13 +12,13 @@ public class Exercise
     
     public DateOnly Date { get; set; }
     
-    public int IdUser { get; set; }
+    public int UserId { get; set; }
 
     public Exercise(string title, DateOnly date, int idUser)
     {
         Title = title;
         Date = date;
-        IdUser = idUser;
+        UserId = idUser;
     }
 
     public Exercise()
