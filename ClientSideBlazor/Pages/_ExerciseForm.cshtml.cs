@@ -24,15 +24,15 @@ public class ExerciseModel : PageModel
         try
         {
 
-                var isSuccess = await _exerciseService.RegisterExerciseAsync(title, date);
-                if (isSuccess)
-                {
-                    IsSuccess = true;
-                }
-                else
-                {
-                    ErrorMessage2 = "Failed to register exercise.";
-                }
+            var isSuccess = await _exerciseService.RegisterExerciseAsync(title, date);
+            if (isSuccess)
+            {
+                IsSuccess = true;
+            }
+            else
+            {
+                ErrorMessage2 = "Failed to register exercise.";
+            }
             
                     
         }
@@ -44,4 +44,5 @@ public class ExerciseModel : PageModel
         return Page();
             
     }
+    
 }

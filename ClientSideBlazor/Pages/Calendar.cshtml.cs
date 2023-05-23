@@ -97,5 +97,9 @@ namespace ClientSideBlazor.Pages
             var toDoBoxesJson = System.Text.Json.JsonSerializer.Serialize(toDoBoxes);
             session.SetString("ToDoBoxes", toDoBoxesJson);
         }
+        public IExerciseService ReturningExerciseService()
+        {
+            return _exerciseService;
+        }
     }
 }

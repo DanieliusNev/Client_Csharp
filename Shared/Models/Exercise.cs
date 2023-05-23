@@ -11,6 +11,7 @@ public class Exercise
     public string Title { get; set; }
     [JsonPropertyName("date")]
     public DateTime Date { get; set; }
+    [JsonPropertyName("userId")]
     public int UserId { get; set; }
 
     public Exercise(string title, DateTime date, int idUser)

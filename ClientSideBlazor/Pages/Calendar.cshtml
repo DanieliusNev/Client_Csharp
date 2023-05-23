@@ -1,4 +1,5 @@
 ﻿@page
+@using global::Shared.Models
 @model ClientSideBlazor.Pages.CalendarModel
 
 @{
@@ -24,7 +25,6 @@
                 var currentDate = Model.WeekStart.AddDays(i);
                 <td>
                     <div class="day-box">
-                        <!-- Add your to-do boxes or containers here for each day -->
                         @if (Model.EventsByDay.ContainsKey(currentDate))
                         {
                             foreach (var evt in Model.EventsByDay[currentDate])
@@ -35,10 +35,7 @@
                             }
                         }
                         <div class="add-box-container">
-                            <form method="post" asp-page-handler="AddToDo" asp-route-date="@currentDate.ToString("yyyy-MM-dd")">
-                                <input type="text" name="newToDo" placeholder="Enter a new to-do" />
-                                <button type="submit">Add</button>
-                            </form>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exerciseModal">Add Button</button>
                         </div>
                         <div id="todoBoxContainer-@currentDate.ToString("yyyy-MM-dd")">
                             @if (Model.ToDoBoxes.ContainsKey(currentDate))
@@ -58,26 +55,45 @@
     </tbody>
 </table>
 
+
+
+<div class="modal fade" id="exerciseModal" tabindex="-1" role="dialog" aria-labelledby="exerciseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exerciseModalLabel">Exercise Form</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @await Html.PartialAsync("_ExerciseForm", new ExerciseModel(Model.ReturningExerciseService()))
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <style>
     .day-box {
         padding: 10px;
     }
-    
+
     .event {
         background-color: lightblue;
         margin-bottom: 5px;
         padding: 5px;
         border-radius: 5px;
     }
-    
+
     .event-title {
         font-weight: bold;
     }
-    
+
     .add-box-container {
         margin-top: 10px;
     }
-    
+
     .to-do-box {
         background-color: lightgray;
         margin-bottom: 5px;
@@ -86,15 +102,10 @@
     }
 </style>
 
-
 @section Scripts {
     <script>
-        function addTodo() {
-            var input = document.querySelector('input[name="newToDo"]');
-            var todo = input.value.trim();
-            if (todo !== "") {
-                input.parentNode.submit();
-            }
+        function showModal() {
+            $('#showmodal').modal('show');
         }
     </script>
 }
