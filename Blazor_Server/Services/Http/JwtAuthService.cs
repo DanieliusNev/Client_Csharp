@@ -1,17 +1,12 @@
-﻿
-using System.Security.Claims;
-using BlazorWasm.Services;
+﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-
 using Microsoft.AspNetCore.Components;
-
 using Shared.Models;
 
+namespace Blazor_Server.Services.Http;
 
-namespace ClientSideBlazor.Service.Http;
-
-public class JwtAuthService: IAuthService
+public class JwtAuthService
 {
     private readonly HttpClient _httpClient;
     private readonly UserState _userState;
@@ -50,7 +45,7 @@ public class JwtAuthService: IAuthService
     
     public async Task LoginUserAsync(string username, string password)
     {
-        User user = new User(username, password);
+        User user = new User(username,password);
 
         string json = JsonSerializer.Serialize(user);
         StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -98,6 +93,4 @@ public class JwtAuthService: IAuthService
         OnAuthStateChanged.Invoke(principal);
         return Task.CompletedTask;
     }
-    
-    
 }
