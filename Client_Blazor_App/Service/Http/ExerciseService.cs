@@ -36,7 +36,25 @@ namespace Client_Blazor_App.Service.Http
                     throw new Exception(responseContent);
                 }
         }
-
+        
+        public async Task<List<Exercise>> GetUserExercisesByDateAsync(int userId,  DateTime startDate,  DateTime endDate)
+        {
+            var response = await _httpClient.GetAsync($"exercises/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var exercises = JsonSerializer.Deserialize<List<Exercise>>(content);
+                foreach (var exercise in exercises)
+                {
+                    Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");
+                }
+                return exercises;
+            }
+            else
+            {
+                return null;
+            }
+        }
         public async Task<List<Exercise>> GetUserExercisesAsync(int userId)
         {
             var response = await _httpClient.GetAsync($"exercises/{userId}");
@@ -55,6 +73,7 @@ namespace Client_Blazor_App.Service.Http
                 return null;
             }
         }
+        
         
     }
 }
