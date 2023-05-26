@@ -37,9 +37,12 @@ namespace Client_Blazor_App.Service.Http
                 }
         }
         
-        public async Task<List<Exercise>> GetUserExercisesByDateAsync(int userId,  DateTime startDate,  DateTime endDate)
+        public async Task<List<Exercise>> GetUserExercisesByDateAsync(int userId, DateTime startDate, DateTime endDate)
         {
-            var response = await _httpClient.GetAsync($"exercises/{userId}");
+            string startDateString = startDate.ToString("yyyy-MM-dd");
+            string endDateString = endDate.ToString("yyyy-MM-dd");
+
+            var response = await _httpClient.GetAsync($"exercisesDate/{userId}?startDate={startDateString}&endDate={endDateString}");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -55,6 +58,7 @@ namespace Client_Blazor_App.Service.Http
                 return null;
             }
         }
+
         public async Task<List<Exercise>> GetUserExercisesAsync(int userId)
         {
             var response = await _httpClient.GetAsync($"exercises/{userId}");
