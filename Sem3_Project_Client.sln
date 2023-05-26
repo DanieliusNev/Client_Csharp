@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientSideBlazor", "ClientS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor_Server", "Blazor_Server\Blazor_Server.csproj", "{07B42726-60B3-4455-9CE0-D687FD793D9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client_Blazor_App", "Client_Blazor_App\Client_Blazor_App.csproj", "{D5638423-2CD1-4EEE-9951-0305F5A0703D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{07B42726-60B3-4455-9CE0-D687FD793D9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07B42726-60B3-4455-9CE0-D687FD793D9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07B42726-60B3-4455-9CE0-D687FD793D9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5638423-2CD1-4EEE-9951-0305F5A0703D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5638423-2CD1-4EEE-9951-0305F5A0703D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5638423-2CD1-4EEE-9951-0305F5A0703D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5638423-2CD1-4EEE-9951-0305F5A0703D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -6,7 +6,7 @@ using Shared.Models;
 
 namespace Blazor_Server.Services.Http;
 
-public class JwtAuthService
+public class JwtAuthService : IAuthService
 {
     private readonly HttpClient _httpClient;
     private readonly UserState _userState;

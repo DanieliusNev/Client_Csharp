@@ -1,0 +1,657 @@
+﻿@page "/Calendar"
+
+@using global::Shared.Models
+@using Client_Blazor_App.Service
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IExerciseService ExerciseService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="calendar">
+    <div class="week-switcher">
+        <button class="switch-button" @onclick="PreviousWeek">Previous</button>
+        <h3>@GetFormattedWeekRange()</h3>
+        <button class="switch-button" @onclick="NextWeek">Next</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                @foreach (var day in CurrentWeek)
+                {
+                    <th>@day.ToString("dddd") @day.ToString("dd")</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @foreach (var exerciseList in ExerciseLists)
+                {
+                    <td>
+                        <div class="exercises">
+                            @if (exerciseList.Exercises.Any())
+                            {
+                                foreach (var exercise in exerciseList.Exercises)
+                                {
+                                    <div class="exercise">
+                                        <div>@exercise.Title</div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div>No exercises for this day</div>
+                            }
+                        </div>
+                        <button type="button" class="add-exercise-btn" @onclick="() => OpenModal(exerciseList.Date)">Add Exercise</button>
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exerciseTitle">Exercise Title:</label>
+                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseDate">Exercise Date:</label>
+                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveExercise">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class ExerciseList
+    {
+        public DateTime Date { get; set; }
+        public List<Exercise> Exercises { get; set; } = new List<Exercise>();
+    }
+
+    private List<ExerciseList> ExerciseLists { get; set; } = new List<ExerciseList>();
+    private List<DateTime> CurrentWeek { get; set; } = new List<DateTime>();
+    private int currentWeekIndex = 0;
+
+    private bool isModalVisible = false;
+    private string exerciseTitle;
+    private DateTime exerciseDate;
+    private string Title { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+        int userIdInt = Int32.Parse(userId);
+        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
+
+        SetCurrentWeek(DateTime.Now);
+        await UpdateExerciseLists();
+    }
+
+    private void SetCurrentWeek(DateTime startDate)
+    {
+        CurrentWeek.Clear();
+        var currentDate = startDate.Date;
+
+        for (int i = 0; i < 7; i++)
+        {
+            CurrentWeek.Add(currentDate);
+            currentDate = currentDate.AddDays(1);
+        }
+    }
+
+    private string GetFormattedWeekRange()
+    {
+        if (CurrentWeek.Any())
+        {
+            var startDate = CurrentWeek.First();
+            var endDate = CurrentWeek.Last();
+            return $"{startDate.ToString("MMMM dd")} - {endDate.ToString("MMMM dd")}, {startDate.Year}";
+        }
+
+        return string.Empty; // Return an empty string if CurrentWeek is empty
+    }
+
+
+    private void PreviousWeek()
+    {
+        currentWeekIndex--;
+        var startDate = DateTime.Now.AddDays(currentWeekIndex * 7);
+        SetCurrentWeek(startDate);
+        UpdateExerciseLists(); // Update the exercise lists
+    }
+
+    private void NextWeek()
+    {
+        
+        currentWeekIndex++;
+        var startDate = DateTime.Now.AddDays(currentWeekIndex * 7);
+        SetCurrentWeek(startDate);
+        UpdateExerciseLists(); // Update the exercise lists
+    }
+
+    private void CloseDialog()
+    {
+        isModalVisible = false;
+        exerciseTitle = null;
+        exerciseDate = DateTime.MinValue;
+    }
+
+    private void OpenModal(DateTime date)
+    {
+        isModalVisible = true;
+        exerciseDate = date;
+        
+    }
+
+    private async Task SaveExercise()
+    {
+        Console.WriteLine(exerciseTitle); // Print the exercise title to the console
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+        int userIdInt = Int32.Parse(userId);
+        await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, userIdInt);
+        await UpdateExerciseLists(); // Update the exercise lists
+        CloseDialog(); // Close the modal after saving
+    }
+
+    private async Task UpdateExerciseLists()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+        int userIdInt = Int32.Parse(userId);
+        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
+
+        ExerciseLists.Clear();
+
+        foreach (var currentDate in CurrentWeek)
+        {
+            var exerciseList = new ExerciseList { Date = currentDate };
+            exerciseList.Exercises.AddRange(exercises.Where(exercise => exercise.Date.Date == currentDate.Date));
+            ExerciseLists.Add(exerciseList);
+        }
+    }
+
+}
+
+
+<style>
+    .calendar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .calendar-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .calendar th {
+        text-align: center;
+        padding: 10px;
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .calendar td {
+        text-align: center;
+        vertical-align: top;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .exercises {
+        margin-bottom: 10px;
+    }
+
+    .exercise {
+        background-color: #f9f9f9;
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+
+    .add-exercise-btn {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .add-exercise-btn:hover {
+        background-color: #45a049;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-dialog {
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .modal-title {
+        margin: 0;
+    }
+
+    .close {
+        font-size: 24px;
+        color: #aaa;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+
+    .modal-body {
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #4caf50;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+
+    .btn-secondary {
+        background-color: #aaa;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #999;
+    }
+
+    .nav-button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .nav-button:hover {
+        background-color: #45a049;
+    }
+</style>
+@*
+@page "/Calendar"
+
+@using global::Shared.Models
+@using Client_Blazor_App.Service
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IExerciseService ExerciseService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="calendar">
+    <table>
+        <thead>
+            <tr>
+                @for (int i = 0; i < 7; i++)
+                {
+                    var currentDate = DateTime.Now.Date.AddDays(i);
+                    <th>@currentDate.ToString("dddd")</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @foreach (var exerciseList in ExerciseLists)
+                {
+                    <td>
+                        <div class="exercises">
+                            @if (exerciseList.Exercises.Any())
+                            {
+                                foreach (var exercise in exerciseList.Exercises)
+                                {
+                                    <div class="exercise">
+                                        <div>@exercise.Title</div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div>No exercises for this day</div>
+                            }
+                        </div>
+                        <button type="button" class="add-exercise-btn" @onclick="() => OpenModal(exerciseList.Date)">Add Exercise</button>
+                    </td>
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exerciseTitle">Exercise Title:</label>
+                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseDate">Exercise Date:</label>
+                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveExercise">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class ExerciseList
+    {
+        public DateTime Date { get; set; }
+        public List<Exercise> Exercises { get; set; } = new List<Exercise>();
+    }
+
+    private List<ExerciseList> ExerciseLists { get; set; } = new List<ExerciseList>();
+
+    private bool isModalVisible = false;
+    private string exerciseTitle;
+    private DateTime exerciseDate;
+    private string Title { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+        int userIdInt = Int32.Parse(userId);
+        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
+
+        for (int i = 0; i < 7; i++)
+        {
+            var currentDate = DateTime.Now.Date.AddDays(i);
+            var exerciseList = new ExerciseList { Date = currentDate };
+            exerciseList.Exercises.AddRange(exercises.Where(exercise => exercise.Date.Date == currentDate));
+            ExerciseLists.Add(exerciseList);
+        }
+    }
+
+    private void CloseDialog()
+    {
+        isModalVisible = false;
+        exerciseTitle = null;
+        exerciseDate = DateTime.MinValue;
+    }
+
+    private void OpenModal(DateTime date)
+    {
+        isModalVisible = true;
+        exerciseDate = date;
+    }
+
+    private async Task SaveExercise()
+    {
+        Console.WriteLine(exerciseTitle); // Print the exercise title to the console
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+        int userIdInt = Int32.Parse(userId);
+        await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, userIdInt);
+        // Fetch the updated list of exercises
+        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
+
+        // Update the exercise list
+        for (int i = 0; i < 7; i++)
+        {
+            var currentDate = DateTime.Now.Date.AddDays(i);
+            var exerciseList = ExerciseLists.FirstOrDefault(list => list.Date.Date == currentDate);
+            if (exerciseList != null)
+            {
+                exerciseList.Exercises = exercises.Where(exercise => exercise.Date.Date == currentDate).ToList();
+            }
+            else
+            {
+                exerciseList = new ExerciseList { Date = currentDate, Exercises = exercises.Where(exercise => exercise.Date.Date == currentDate).ToList() };
+                ExerciseLists.Add(exerciseList);
+            }
+        }
+        CloseDialog(); // Close the modal after saving
+    }
+}
+<style>
+    .calendar {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .calendar table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .calendar th {
+        text-align: center;
+        padding: 10px;
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    .calendar td {
+        text-align: center;
+        vertical-align: top;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .exercises {
+        margin-bottom: 10px;
+    }
+
+    .exercise {
+        background-color: #f9f9f9;
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+
+    .add-exercise-btn {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .add-exercise-btn:hover {
+        background-color: #45a049;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-dialog {
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .modal-title {
+        margin: 0;
+    }
+
+    .close {
+        font-size: 24px;
+        color: #aaa;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+    }
+
+    .modal-body {
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #4caf50;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+
+    .btn-secondary {
+        background-color: #aaa;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #999;
+    }
+</style>
+*@

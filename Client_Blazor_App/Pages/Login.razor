@@ -1,7 +1,6 @@
 ﻿@page "/Login"
-@using Blazor_Server.Authentication
-@using Blazor_Server.Services
-@inject IAuthService AuthService
+@using Client_Blazor_App.Service
+@inject IAuthService authService
 @inject NavigationManager navMgr
 
 <AuthorizeView>
@@ -27,11 +26,15 @@
             <div class="field">
                 <button class="loginbtn" @onclick="LoginAsync">Log in</button>
             </div>
+            <div class="field">
+                <button class="loginbtn" @onclick="Registration">Registration</button>
+            </div>
+            
         </div>
     </NotAuthorized>
     <Authorized>
         <div class="card">
-            <h3>Hello, Logged In User!</h3>
+            <h3>Hello, @context.User.Identity.Name</h3>
         </div>
     </Authorized>
 </AuthorizeView>
@@ -44,15 +47,27 @@
     private async Task LoginAsync()
     {
         errorLabel = "";
-        try
+        if (userName == null || password == null)
         {
-            await AuthService.LoginUserAsync(userName, password);
-            navMgr.NavigateTo("/");
+            errorLabel = $"Error: empty field";
         }
-        catch (Exception e)
+        else
         {
-            errorLabel = $"Error: {e.Message}";
+            try
+            {
+                await authService.LoginAsync(userName, password);
+                navMgr.NavigateTo("/");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                errorLabel = $"Error: {e.Message}";
+            }
         }
     }
-}
+    private void Registration()
+    {
+        navMgr.NavigateTo("/Registration");
+    }
 
+}

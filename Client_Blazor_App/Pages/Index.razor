@@ -1,0 +1,22 @@
+﻿@page "/"
+
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView>
+    <NotAuthorized>
+        <h1>Hello, anonymous user!</h1>
+        <!-- Additional content for anonymous users -->
+    </NotAuthorized>
+    <Authorized>
+        <h1>Hello, @context.User.Identity.Name!</h1>
+        <h1>Hello, @context.User.Claims.First(claim => claim.Type.Equals("Password")).Value</h1>
+        <h1>Hello, @context.User.Claims.First(claim => claim.Type.Equals("UserId")).Value</h1>
+        <!-- Additional content for authenticated users -->
+    </Authorized>
+</AuthorizeView>
+
+<PageTitle>Index</PageTitle>
+
+<p>Welcome to your new app.</p>
+
+<SurveyPrompt Title="How is Blazor working for you?" />

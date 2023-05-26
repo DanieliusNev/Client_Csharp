@@ -1,0 +1,45 @@
+﻿<!-- ModelComponent.razor -->
+<div class="modal" style="display: @(IsVisible ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="CreateExercise">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback<(string ExerciseTitle, DateTime ExerciseDate)> ExerciseDataChanged { get; set; }
+
+    private async Task CloseDialog()
+    {
+        await ExerciseDataChanged.InvokeAsync((null, DateTime.MinValue)); // Reset the exercise data
+        IsVisible = false; // Close the modal
+    }
+
+    private async Task CreateExercise()
+    {
+        
+        IsVisible = false; // Close the modal
+    }
+}

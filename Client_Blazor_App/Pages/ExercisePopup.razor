@@ -1,0 +1,65 @@
+﻿@using global::Shared.Models
+@using Microsoft.AspNetCore.Components
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="exercise-popup" style="display: @(isExercisePopupVisible ? "block" : "none")">
+    <h3>Create Exercise</h3>
+    <div class="form-group">
+        <label for="exercise-title">Title:</label>
+        <input id="exercise-title" type="text" @bind="exerciseTitle" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="exercise-date">Date:</label>
+        <input id="exercise-date" type="date" @bind="exerciseDate" class="form-control" />
+    </div>
+    <button class="btn btn-primary" @onclick="CreateExercise">Create</button>
+</div>
+
+@code {
+    private string exerciseTitle;
+    private DateTime exerciseDate;
+
+    [Parameter]
+    public EventCallback<Exercise> OnExerciseCreated { get; set; }
+
+    private bool isExercisePopupVisible = false;
+
+    public void Show(DateTime date)
+    {
+        exerciseDate = date;
+        isExercisePopupVisible = true;
+    }
+
+    public void Hide()
+    {
+        isExercisePopupVisible = false;
+    }
+
+    private async Task CreateExercise()
+    {
+        try
+        {
+            var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+            int userIdInt = Int32.Parse(userId);
+
+            // Create the exercise object
+            Exercise exercise = new Exercise(exerciseTitle, exerciseDate, userIdInt);
+
+            // Invoke the event callback to notify the parent component
+            await OnExerciseCreated.InvokeAsync(exercise);
+
+            // Reset the input fields
+            exerciseTitle = string.Empty;
+            exerciseDate = DateTime.Now;
+
+            // Hide the exercise popup after successful exercise creation
+            Hide();
+        }
+        catch (Exception e)
+        {
+            // Handle any errors
+            Console.WriteLine(e);
+        }
+    }
+}
