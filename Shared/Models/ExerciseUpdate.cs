@@ -1,28 +1,20 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Shared.Models;
 
-public class Exercise
+public class ExerciseUpdate
 {
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+        public int Id { get; set; }
     [JsonPropertyName("title")]
     public string Title { get; set; }
     [JsonPropertyName("date")]
     public DateTime Date { get; set; }
     [JsonPropertyName("userId")]
     public int UserId { get; set; }
+    
 
-    public Exercise(string title, DateTime date, int idUser)
-    {
-        
-        Title = title;
-        Date = date.Date; // Set only the date component, without the time
-        UserId = idUser;
-    }
-
-    public Exercise(int id, string title, DateTime date, int userId)
+    public ExerciseUpdate(int id, string title, DateTime date, int userId)
     {
         Id = id;
         Title = title;
@@ -31,7 +23,7 @@ public class Exercise
     }
 
 
-    public Exercise()
+    public ExerciseUpdate()
     {
         
     }

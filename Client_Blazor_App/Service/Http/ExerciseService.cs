@@ -23,7 +23,7 @@ namespace Client_Blazor_App.Service.Http
 
         public async Task RegisterExerciseAsync(string title, DateTime date, int userId)
         {
-            Exercise exercise = new Exercise(title, date, userId);
+            ExerciseRegister exercise = new ExerciseRegister(title, date, userId);
 
                 var json = JsonSerializer.Serialize(exercise);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -75,6 +75,31 @@ namespace Client_Blazor_App.Service.Http
             else
             {
                 return null;
+            }
+        }
+        public async Task UpdateExerciseAsync(int id, string title, DateTime date, int userId)
+        {
+            ExerciseUpdate exercise = new ExerciseUpdate(id, title, date, userId);
+
+            var json = JsonSerializer.Serialize(exercise);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"update", content);
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(responseContent);
+            }
+        }
+        public async Task DeleteExerciseAsync(int exerciseId)
+        {
+            var response = await _httpClient.DeleteAsync($"exercises/{exerciseId}");
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(responseContent);
             }
         }
         

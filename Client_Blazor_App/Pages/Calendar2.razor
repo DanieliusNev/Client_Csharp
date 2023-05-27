@@ -2,8 +2,6 @@
 
 @using global::Shared.Models
 @using Client_Blazor_App.Service
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Mvc
 @inject IExerciseService ExerciseService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-************" crossorigin="anonymous" />
@@ -41,6 +39,7 @@
                                         {
                                             <div class="exercise">
                                                 <div>@exercise.Title</div>
+                                                  <i class="fas fa-pen edit-icon" @onclick="() => OpenEditModal(exercise)"></i>
                                             </div>
                                         }
                                         
@@ -81,6 +80,31 @@
         </div>
     </div>
 </div>
+<div class="modal" style="display: @(isModalVisible2 ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialogEdit">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exerciseTitle">Exercise Title:</label>
+                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseDate">Exercise Date:</label>
+                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialogEdit">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="UpdateExercise">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
 
@@ -91,6 +115,8 @@
     private bool isModalVisible = false;
     private string exerciseTitle;
     private DateTime exerciseDate;
+    
+    private bool isModalVisible2 = false;
 
     
     protected override async Task OnInitializedAsync()
@@ -187,6 +213,42 @@
             
         }
     }
+    private Exercise selectedExercise;
+    
+    private void OpenEditModal(Exercise exercise)
+    {
+        selectedExercise = exercise;
+        exerciseTitle = exercise.Title;
+        exerciseDate = exercise.Date;
+        isModalVisible2 = true;
+    }
+    private void CloseDialogEdit()
+    {
+        isModalVisible2 = false;
+        exerciseTitle = null;
+        exerciseDate = DateTime.MinValue;
+    }
+
+    
+    private async Task UpdateExercise()
+    {
+        if (selectedExercise != null)
+        {
+            selectedExercise.Title = exerciseTitle;
+            selectedExercise.Date = exerciseDate;
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity.IsAuthenticated)
+            {
+                var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+                int userIdInt = Int32.Parse(userId);
+                await ExerciseService.UpdateExerciseAsync(selectedExercise.Id, selectedExercise.Title, selectedExercise.Date, userIdInt);
+                await UpdateExerciseLists();
+                CloseDialogEdit();
+            }
+        }
+    }
+
 }
 
 <style>
@@ -375,5 +437,9 @@
                 margin: 0;
                 padding: 0 10px;
             }
+            .edit-icon {
+                    margin-left: 5px;
+                    cursor: pointer;
+                }
    
 </style>
