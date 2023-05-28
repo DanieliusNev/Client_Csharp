@@ -20,6 +20,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthProvider>();
 builder.Services.AddScoped<HttpContextAccessor>();
 builder.Services.AddScoped<IAuthService, JwtAuthService>();
 builder.Services.AddScoped<IExerciseService, ExerciseService>();
+builder.Services.AddScoped<IShareService, ShareService>();
 builder.Services.AddSyncfusionBlazor();
 var app = builder.Build();
 

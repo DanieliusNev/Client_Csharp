@@ -1,0 +1,17 @@
+﻿@page "/SharePosts"
+@inject HttpClient httpClient
+@inject IJSRuntime jsRuntime
+
+<h1>Shared Posts</h1>
+
+<div id="sharedPostsContainer"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await jsRuntime.InvokeVoidAsync("import", "Client_Blazor_App/wwwroot/javascript/shared-posts.js");
+        }
+    }
+}

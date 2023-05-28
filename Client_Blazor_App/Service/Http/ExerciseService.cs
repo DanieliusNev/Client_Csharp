@@ -94,7 +94,7 @@ namespace Client_Blazor_App.Service.Http
         }
         public async Task DeleteExerciseAsync(int exerciseId)
         {
-            var response = await _httpClient.DeleteAsync($"exercises/{exerciseId}");
+            var response = await _httpClient.DeleteAsync($"delete/{exerciseId}");
 
             string responseContent = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)

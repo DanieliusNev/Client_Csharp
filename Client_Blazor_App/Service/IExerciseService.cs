@@ -9,5 +9,5 @@ public interface IExerciseService
     public Task<List<Exercise>> GetUserExercisesByDateAsync(int userId, DateTime startDate, DateTime endDate);
 
     public Task UpdateExerciseAsync(int id, string title, DateTime date, int userId);
-    public Task DeleteExerciseAsync(int exerciseId)
+    public Task DeleteExerciseAsync(int exerciseId);
 }
