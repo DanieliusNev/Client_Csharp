@@ -5,10 +5,10 @@
 
 <AuthorizeView>
     <Authorized>
-        <img class="icon" src="img/Logout.png" @onclick="Logout"/>
+        <img class="icon small-icon" src="img/Logout.png" @onclick="Logout"/>
     </Authorized>
     <NotAuthorized>
-        <img class="icon" src="img/Login.png" @onclick="Login"/>
+        <img class="icon small-icon" src="img/Login.png" @onclick="Login"/>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -27,3 +27,9 @@
     }
 
 }
+<style>
+    .small-icon {
+        width: 35px; /* Adjust the width as per your requirement */
+        height: 35px; /* Adjust the height as per your requirement */
+    }
+</style>

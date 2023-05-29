@@ -38,9 +38,9 @@ namespace Client_Blazor_App.Service.Http
         }*/
         public async Task RegisterExerciseAsync(string title, DateTime date, string weights, string amount, int categoryId, int userId)
         {
-            Exercise exercise = new Exercise(title, date, weights, amount, categoryId, userId);
+            ExerciseRegistration exerciseRegistration = new ExerciseRegistration(title, date, weights, amount, categoryId, userId);
 
-            var json = JsonSerializer.Serialize(exercise);
+            var json = JsonSerializer.Serialize(exerciseRegistration);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync("registerExercises", content);
@@ -52,7 +52,7 @@ namespace Client_Blazor_App.Service.Http
             }
         }
         
-        public async Task<List<ExerciseRegister>> GetUserExercisesByDateAsync(int userId, DateTime startDate, DateTime endDate)
+        public async Task<List<Exercise>> GetUserExercisesByDateAsync(int userId, DateTime startDate, DateTime endDate)
         {
             string startDateString = startDate.ToString("yyyy-MM-dd");
             string endDateString = endDate.ToString("yyyy-MM-dd");
@@ -61,7 +61,7 @@ namespace Client_Blazor_App.Service.Http
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var exercises = JsonSerializer.Deserialize<List<ExerciseRegister>>(content);
+                var exercises = JsonSerializer.Deserialize<List<Exercise>>(content);
                 foreach (var exercise in exercises)
                 {
                     Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");
@@ -74,13 +74,13 @@ namespace Client_Blazor_App.Service.Http
             }
         }
 
-        public async Task<List<Exercise>> GetUserExercisesAsync(int userId)
+        public async Task<List<ExerciseRegistration>> GetUserExercisesAsync(int userId)
         {
             var response = await _httpClient.GetAsync($"exercises/{userId}");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var exercises = JsonSerializer.Deserialize<List<Exercise>>(content);
+                var exercises = JsonSerializer.Deserialize<List<ExerciseRegistration>>(content);
                 foreach (var exercise in exercises)
                 {
                     Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");

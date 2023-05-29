@@ -1,11 +1,10 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Shared.Models;
 
 public class Exercise
 {
-    [JsonIgnore]
+    [JsonPropertyName("id")]
     public int Id { get; set; }
     [JsonPropertyName("title")]
     public string Title { get; set; }
@@ -34,5 +33,4 @@ public class Exercise
     {
         
     }
-    
 }

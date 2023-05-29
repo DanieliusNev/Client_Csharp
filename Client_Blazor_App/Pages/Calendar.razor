@@ -198,7 +198,7 @@
 
 @code {
 
-    private IEnumerable<ExerciseRegister>? ExerciseList;
+    private IEnumerable<Exercise>? ExerciseList;
     private IEnumerable<DateTime> CurrentWeek { get; set; } = new List<DateTime>();
     private int currentWeekIndex = 0;
 
@@ -315,9 +315,9 @@
             
         }
     }
-    private ExerciseRegister selectedExercise;
+    private Exercise selectedExercise;
     
-    private void OpenEditModal(ExerciseRegister exercise)
+    private void OpenEditModal(Exercise exercise)
     {
         selectedExercise = exercise;
         exerciseTitle = exercise.Title;

@@ -4,19 +4,17 @@
 
 <AuthorizeView>
     <NotAuthorized>
-        <h1>Hello, anonymous user!</h1>
-        <!-- Additional content for anonymous users -->
+        <div class="container text-center">
+            <h2 class="text-black">Welcome to the Fitness with Friends application!</h2>
+            <p class="text-black-50">Track, plan, and share your workouts with other users.</p>
+            <p class="text-black-50">To access more features, please create an account or log in.</p>
+        </div>
     </NotAuthorized>
     <Authorized>
-        <h1>Hello, @context.User.Identity.Name!</h1>
-        <h1>Hello, @context.User.Claims.First(claim => claim.Type.Equals("Password")).Value</h1>
-        <h1>Hello, @context.User.Claims.First(claim => claim.Type.Equals("UserId")).Value</h1>
-        <!-- Additional content for authenticated users -->
+        <div class="container text-center">
+            <h1 class="mt-5">Hello, @context.User.Identity.Name!</h1>
+        </div>
     </Authorized>
 </AuthorizeView>
 
 <PageTitle>Index</PageTitle>
-
-<p>Welcome to your new app.</p>
-
-<SurveyPrompt Title="How is Blazor working for you?" />

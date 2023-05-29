@@ -1,10 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using System.Text.Json.Serialization;
 
 namespace Shared.Models;
 
-public class ExerciseRegister
+public class ExerciseRegistration
 {
-    [JsonPropertyName("id")]
+    [JsonIgnore]
     public int Id { get; set; }
     [JsonPropertyName("title")]
     public string Title { get; set; }
@@ -18,7 +19,7 @@ public class ExerciseRegister
     public string Amount { get; set; }
     [JsonPropertyName("categoryId")]
     public int CategoryId { get; set; }
-    public ExerciseRegister(string title, DateTime date, string weights, string amount, int categoryId, int userId)
+    public ExerciseRegistration(string title, DateTime date, string weights, string amount, int categoryId, int userId)
     {
         Title = title;
         Date = date;
@@ -29,8 +30,9 @@ public class ExerciseRegister
     }
 
 
-    public ExerciseRegister()
+    public ExerciseRegistration()
     {
         
     }
+    
 }

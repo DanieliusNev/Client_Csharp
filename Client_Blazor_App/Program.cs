@@ -1,7 +1,6 @@
 using Client_Blazor_App.Auth;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Client_Blazor_App.Data;
 using Client_Blazor_App.Pages;
 using Client_Blazor_App.Service;
 using Client_Blazor_App.Service.Http;
@@ -15,7 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor(); // Add this line
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthProvider>();
