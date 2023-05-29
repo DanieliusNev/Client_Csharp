@@ -1,67 +1,115 @@
 ﻿@page "/SharePosts"
-@using Client_Blazor_App.Service.Http
 @using global::Shared.Models
 @using Client_Blazor_App.Service
+@using System.Globalization
 @inject IShareService shareService
+
 
 <AuthorizeView>
     <NotAuthorized>
-        <h1>Shared Posts</h1>
-        @if (sharedPosts != null)
-        {
-            <div class="card-deck">
-                @foreach (var post in sharedPosts)
-                {
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <h5 class="card-title">@post.SharedDate</h5>
-                            <h6 class="card-subtitle text-muted">Posted by: @post.Comment</h6>
+        <div class="container">
+            <h1 class="page-title">Shared Posts</h1>
+            @if (sharedPosts != null && sharedPosts.Any())
+            {
+                <div class="row">
+                    @foreach (var post in sharedPosts)
+                    {
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">@post.SharedBy</h5>
+                                        @{
+                                            string sharedDate = post.SharedDate;
+                                            DateTime sharedDateTime;
+
+                                            // Define possible date formats
+                                            string[] formats = { "yyyy-MM-dd HH:mm:ss.fffffff", "yyyy-MM-dd HH:mm:ss.ffffff", "yyyy-MM-dd HH:mm:ss.fffff", "yyyy-MM-dd HH:mm:ss.ffff", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-dd HH:mm:ss.ff", "yyyy-MM-dd HH:mm:ss.f", "yyyy-MM-dd HH:mm:ss" };
+
+                                            // Try parsing the date using different formats
+                                            if (DateTime.TryParseExact(sharedDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out sharedDateTime))
+                                            {
+                                                string formattedDate = sharedDateTime.ToString("yyyy-MM-dd HH:mm");
+                                                <h6 class="card-subtitle">@formattedDate</h6>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="comment">
+                                        <p>@post.Comment</p>
+                                    </div>
+                                    <h6 class="exercises-heading">Exercises:</h6>
+                                    <ul class="list-group">
+                                        @foreach (var exercise in post.ExerciseTitles)
+                                        {
+                                            <li class="list-group-item">@exercise.Title</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                @foreach (var exercise in post.ExerciseTitles)
-                                {
-                                    <li class="list-group-item">@exercise.Title</li>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>No shared posts available.</p>
-        }
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="no-posts">No shared posts available.</p>
+            }
+        </div>
     </NotAuthorized>
     <Authorized>
-        <h1>Shared Posts</h1>
-        @if (sharedPosts != null)
-        {
-            <div class="card-deck">
-                @foreach (var post in sharedPosts)
-                {
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <h5 class="card-title">@post.SharedDate</h5>
-                            <h6 class="card-subtitle text-muted">Posted by: @post.Comment</h6>
+        <div class="container">
+            <h1 class="page-title">Shared Posts</h1>
+            @if (sharedPosts != null && sharedPosts.Any())
+            {
+                <div class="row">
+                    @foreach (var post in sharedPosts)
+                    {
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">@post.SharedBy</h5>
+                                        @{
+                                            string sharedDate = post.SharedDate;
+                                            DateTime sharedDateTime;
+
+                                            // Define possible date formats
+                                            string[] formats = { "yyyy-MM-dd HH:mm:ss.fffffff", "yyyy-MM-dd HH:mm:ss.ffffff", "yyyy-MM-dd HH:mm:ss.fffff", "yyyy-MM-dd HH:mm:ss.ffff", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-dd HH:mm:ss.ff", "yyyy-MM-dd HH:mm:ss.f", "yyyy-MM-dd HH:mm:ss" };
+
+                                            // Try parsing the date using different formats
+                                            if (DateTime.TryParseExact(sharedDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out sharedDateTime))
+                                            {
+                                                string formattedDate = sharedDateTime.ToString("yyyy-MM-dd HH:mm");
+                                                <h6 class="card-subtitle">@formattedDate</h6>
+                                            }
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="comment">
+                                        <p>@post.Comment</p>
+                                    </div>
+                                    <h6 class="exercises-heading">Exercises:</h6>
+                                    <ul class="list-group">
+                                        @foreach (var exercise in post.ExerciseTitles)
+                                        {
+                                            <li class="list-group-item">@exercise.Title</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                @foreach (var exercise in post.ExerciseTitles)
-                                {
-                                    <li class="list-group-item">@exercise.Title</li>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>No shared posts available.</p>
-        }
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="no-posts">No shared posts available.</p>
+            }
+        </div>
     </Authorized>
 </AuthorizeView>
 

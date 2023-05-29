@@ -12,7 +12,22 @@ public class ExerciseRegister
     public DateTime Date { get; set; }
     [JsonPropertyName("userId")]
     public int UserId { get; set; }
-    
+    [JsonPropertyName("weights")]
+    public string Weights { get; set; }
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; }
+    [JsonPropertyName("categoryId")]
+    public int CategoryId { get; set; }
+    public ExerciseRegister(string title, DateTime date, string weights, string amount, int categoryId, int userId)
+    {
+        Title = title;
+        Date = date;
+        Weights = weights;
+        Amount = amount;
+        CategoryId = categoryId;
+        UserId = userId;
+    }
+
 
     public ExerciseRegister(string title, DateTime date, int userId)
     {

@@ -2,15 +2,19 @@
 
 @using global::Shared.Models
 @using Client_Blazor_App.Service
-@using Microsoft.AspNetCore.Components.Authorization
 @inject IExerciseService ExerciseService
+@inject IShareService ShareService
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-************" crossorigin="anonymous" />
 <div class="calendar">
     <div class="week-switcher">
-        <button class="switch-button" @onclick="PreviousWeek">Previous</button>
+        <button class="switch-button" @onclick="PreviousWeek">
+            <i class="fas fa-arrow-left"></i>
+        </button>
         <h3>@GetFormattedWeekRange()</h3>
-        <button class="switch-button" @onclick="NextWeek">Next</button>
+        <button class="switch-button" @onclick="NextWeek">
+            <i class="fas fa-arrow-right"></i>
+        </button>
     </div>
     <table>
         <thead>
@@ -22,35 +26,46 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                @foreach (var day in CurrentWeek)
-                {
-                    var exerciseList = ExerciseLists.FirstOrDefault(el => el.Date.Date == day.Date);
-                    <td>
-                        <div class="exercises">
-                            @if (exerciseList != null && exerciseList.Exercises.Any())
-                            {
-                                foreach (var exercise in exerciseList.Exercises)
+        
+                <tr>
+                    @foreach (var day in CurrentWeek)
+                    {
+                        <td>
+                            <div class="exercises">
+                                @if (ExerciseList!=null)
                                 {
-                                    <div class="exercise">
-                                        <div>@exercise.Title</div>
-                                    </div>
+                                    foreach (var exercise in ExerciseList)
+                                    {
+                                        @if (day.Date == exercise.Date)
+                                        {
+                                            <div class="exercise">
+                                                <div>@exercise.Title</div>
+                                                <i class="fas fa-pen edit-icon" @onclick="() => OpenEditModal(exercise)"></i>
+                                                <i class="fas fa-trash delete-icon" @onclick="() => OpenDeleteModal(exercise.Id)"></i>
+
+                                            </div>
+                                        }
+                                        
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                <div>No exercises for this day</div>
-                            }
-                        </div>
-                        <button type="button" class="add-exercise-btn" @onclick="() => OpenModal(day)">Add Exercise</button>
-                    </td>
-                }
-            </tr>
+                            </div>
+                            <button type="button" class="add-exercise-btn" @onclick="() => OpenModal(day.Date)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            
+                            <button type="button" class="share-exercises-btn" @onclick="() => ShareExercises(day)">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            
+                        </td>
+                    }
+                </tr>
+            
         </tbody>
     </table>
 </div>
 
-<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
+@*<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
         <div class="modal-content">
@@ -74,27 +89,140 @@
             </div>
         </div>
     </div>
+</div>*@
+<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exerciseTitle">Exercise Title:</label>
+                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseDate">Exercise Date:</label>
+                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseWeights">Weights:</label>
+                    <input type="text" class="form-control" id="exerciseWeights" @bind="exerciseWeights">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseAmount">Amount:</label>
+                    <input type="text" class="form-control" id="exerciseAmount" @bind="exerciseAmount">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseCategory">Exercise Category:</label>
+                    <select class="form-control" id="exerciseCategory" @bind="selectedCategoryId">
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Id">@category.Title</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveExercise">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" style="display: @(isModalVisible2 ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialogEdit">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exerciseTitle">Exercise Title:</label>
+                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
+                </div>
+                <div class="form-group">
+                    <label for="exerciseDate">Exercise Date:</label>
+                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialogEdit">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="UpdateExercise">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" style="display: @(isModalVisible3 ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Exercise</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDeleteDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Are you sure you want to delete the exercise?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDeleteDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="DeleteExercise">Delete</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
-    private class ExerciseList
-    {
-        public DateTime Date { get; set; }
-        public List<Exercise> Exercises { get; set; } = new List<Exercise>();
-    }
 
-    private List<ExerciseList> ExerciseLists { get; set; } = new List<ExerciseList>();
-    private List<DateTime> CurrentWeek { get; set; } = new List<DateTime>();
+    private IEnumerable<ExerciseRegister>? ExerciseList;
+    private IEnumerable<DateTime> CurrentWeek { get; set; } = new List<DateTime>();
     private int currentWeekIndex = 0;
 
     private bool isModalVisible = false;
+    
     private string exerciseTitle;
     private DateTime exerciseDate;
+    private string exerciseWeights;
+    private string exerciseAmount;
+    private int selectedCategoryId;
+    private List<Category> categories;
+    
+    private bool isModalVisible2 = false;
+    private bool isModalVisible3 = false;
 
+    
     protected override async Task OnInitializedAsync()
     {
+        var today = DateTime.Today;
+        CurrentWeek = GetWeekDates(today);
+        categories = new List<Category>
+        {
+            new Category { Id = 1, Title = "Legs" },
+            new Category { Id = 2, Title = "Body" },
+            new Category { Id = 3, Title = "Arms" }
+        };
         await UpdateExerciseLists();
     }
+
+    private List<DateTime> GetWeekDates(DateTime date)
+    {
+        var monday = date.Date.AddDays(-(int)date.DayOfWeek + 1); // Get the previous Monday
+        var startOfWeek = monday.Date.AddHours(9); // Set the starting time to 9 AM
+        var weekDates = new List<DateTime>();
+    
+        for (int i = 0; i < 7; i++)
+        {
+            weekDates.Add(startOfWeek.AddDays(i));
+        }
+    
+        CurrentWeek = weekDates;
+        return weekDates;
+    }
+
 
     private string GetFormattedWeekRange()
     {
@@ -112,7 +240,7 @@
     {
         currentWeekIndex--;
         var startDate = DateTime.Today.AddDays(currentWeekIndex * 7);
-        SetCurrentWeek(startDate);
+        CurrentWeek = GetWeekDates(startDate);
         await UpdateExerciseLists();
     }
 
@@ -120,20 +248,9 @@
     {
         currentWeekIndex++;
         var startDate = DateTime.Today.AddDays(currentWeekIndex * 7);
-        SetCurrentWeek(startDate);
+        CurrentWeek = GetWeekDates(startDate);
         await UpdateExerciseLists();
-    }
-
-    private void SetCurrentWeek(DateTime startDate)
-    {
-        CurrentWeek.Clear();
-        var currentDate = startDate.Date;
-
-        for (int i = 0; i < 7; i++)
-        {
-            CurrentWeek.Add(currentDate);
-            currentDate = currentDate.AddDays(1);
-        }
+        Console.WriteLine(ExerciseList.ToString());
     }
 
     private void CloseDialog()
@@ -149,7 +266,7 @@
         exerciseDate = date;
     }
 
-    private async Task SaveExercise()
+    /*private async Task SaveExercise()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -158,6 +275,19 @@
             var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
             int userIdInt = Int32.Parse(userId);
             await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, userIdInt);
+            await UpdateExerciseLists();
+            CloseDialog();
+        }
+    }*/
+    private async Task SaveExercise()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+            int userIdInt = Int32.Parse(userId);
+            await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, exerciseWeights, exerciseAmount, selectedCategoryId, userIdInt);
             await UpdateExerciseLists();
             CloseDialog();
         }
@@ -172,486 +302,77 @@
             var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
             int userIdInt = Int32.Parse(userId);
 
-            ExerciseLists.Clear();
-
-            foreach (var currentDate in CurrentWeek)
-            {
-                var exercises = await ExerciseService.GetUserExercisesByDateAsync(userIdInt, currentDate, currentDate);
-
-                var exerciseList = new ExerciseList { Date = currentDate };
-                exerciseList.Exercises.AddRange(exercises);
-                ExerciseLists.Add(exerciseList);
-            }
+            var startDate = CurrentWeek.First();
+            var endDate = CurrentWeek.Last();
+            ExerciseList = await ExerciseService.GetUserExercisesByDateAsync(userIdInt, startDate, endDate);
+            
         }
     }
-
-    }
-
-    }
-}
-
-
-
-
-
-
-<style>
-    .calendar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 20px;
-    }
-
-    .calendar-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .calendar-table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    .calendar th {
-        text-align: center;
-        padding: 10px;
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    .calendar td {
-        text-align: center;
-        vertical-align: top;
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .exercises {
-        margin-bottom: 10px;
-    }
-
-    .exercise {
-        background-color: #f9f9f9;
-        padding: 5px;
-        margin-bottom: 5px;
-    }
-
-    .add-exercise-btn {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-
-    .add-exercise-btn:hover {
-        background-color: #45a049;
-    }
-
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-dialog {
-        background-color: #fff;
-        border-radius: 4px;
-        padding: 20px;
-        max-width: 400px;
-        width: 100%;
-    }
-
-    .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .modal-title {
-        margin: 0;
-    }
-
-    .close {
-        font-size: 24px;
-        color: #aaa;
-        cursor: pointer;
-        border: none;
-        background: transparent;
-    }
-
-    .modal-body {
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 10px;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 5px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-
-    .modal-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    .btn {
-        padding: 5px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background-color: #4caf50;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: #45a049;
-    }
-
-    .btn-secondary {
-        background-color: #aaa;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background-color: #999;
-    }
-
-    .nav-button {
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        margin-right: 10px;
-        cursor: pointer;
-    }
-
-    .nav-button:hover {
-        background-color: #45a049;
-    }
-</style>
-@*
-@page "/Calendar"
-
-@using global::Shared.Models
-@using Client_Blazor_App.Service
-@using Microsoft.AspNetCore.Components.Authorization
-@inject IExerciseService ExerciseService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-
-<div class="calendar">
-    <table>
-        <thead>
-            <tr>
-                @for (int i = 0; i < 7; i++)
-                {
-                    var currentDate = DateTime.Now.Date.AddDays(i);
-                    <th>@currentDate.ToString("dddd")</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                @foreach (var exerciseList in ExerciseLists)
-                {
-                    <td>
-                        <div class="exercises">
-                            @if (exerciseList.Exercises.Any())
-                            {
-                                foreach (var exercise in exerciseList.Exercises)
-                                {
-                                    <div class="exercise">
-                                        <div>@exercise.Title</div>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div>No exercises for this day</div>
-                            }
-                        </div>
-                        <button type="button" class="add-exercise-btn" @onclick="() => OpenModal(exerciseList.Date)">Add Exercise</button>
-                    </td>
-                }
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="modal" style="display: @(isModalVisible ? "block" : "none")">
-    <div class="modal-overlay"></div>
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Exercise</h5>
-                <button type="button" class="close" data-dismiss="modal" @onclick="CloseDialog">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="exerciseTitle">Exercise Title:</label>
-                    <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
-                </div>
-                <div class="form-group">
-                    <label for="exerciseDate">Exercise Date:</label>
-                    <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialog">Cancel</button>
-                <button type="button" class="btn btn-primary" @onclick="SaveExercise">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@code {
-    private class ExerciseList
+    private ExerciseRegister selectedExercise;
+    
+    private void OpenEditModal(ExerciseRegister exercise)
     {
-        public DateTime Date { get; set; }
-        public List<Exercise> Exercises { get; set; } = new List<Exercise>();
+        selectedExercise = exercise;
+        exerciseTitle = exercise.Title;
+        exerciseDate = exercise.Date;
+        isModalVisible2 = true;
     }
-
-    private List<ExerciseList> ExerciseLists { get; set; } = new List<ExerciseList>();
-
-    private bool isModalVisible = false;
-    private string exerciseTitle;
-    private DateTime exerciseDate;
-    private string Title { get; set; }
-
-    [Parameter]
-    public bool IsVisible { get; set; }
-
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
-
-    protected override async Task OnInitializedAsync()
+    private void CloseDialogEdit()
     {
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
-        int userIdInt = Int32.Parse(userId);
-        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
-
-        for (int i = 0; i < 7; i++)
-        {
-            var currentDate = DateTime.Now.Date.AddDays(i);
-            var exerciseList = new ExerciseList { Date = currentDate };
-            exerciseList.Exercises.AddRange(exercises.Where(exercise => exercise.Date.Date == currentDate));
-            ExerciseLists.Add(exerciseList);
-        }
-    }
-
-    private void CloseDialog()
-    {
-        isModalVisible = false;
+        isModalVisible2 = false;
         exerciseTitle = null;
         exerciseDate = DateTime.MinValue;
     }
 
-    private void OpenModal(DateTime date)
-    {
-        isModalVisible = true;
-        exerciseDate = date;
-    }
 
-    private async Task SaveExercise()
+    private async Task UpdateExercise()
     {
-        Console.WriteLine(exerciseTitle); // Print the exercise title to the console
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userId = authenticationState.User.Claims.First(claim => claim.Type.Equals("UserId")).Value;
-        int userIdInt = Int32.Parse(userId);
-        await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, userIdInt);
-        // Fetch the updated list of exercises
-        var exercises = await ExerciseService.GetUserExercisesAsync(userIdInt);
-
-        // Update the exercise list
-        for (int i = 0; i < 7; i++)
+        if (selectedExercise != null)
         {
-            var currentDate = DateTime.Now.Date.AddDays(i);
-            var exerciseList = ExerciseLists.FirstOrDefault(list => list.Date.Date == currentDate);
-            if (exerciseList != null)
+            selectedExercise.Title = exerciseTitle;
+            selectedExercise.Date = exerciseDate;
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity.IsAuthenticated)
             {
-                exerciseList.Exercises = exercises.Where(exercise => exercise.Date.Date == currentDate).ToList();
-            }
-            else
-            {
-                exerciseList = new ExerciseList { Date = currentDate, Exercises = exercises.Where(exercise => exercise.Date.Date == currentDate).ToList() };
-                ExerciseLists.Add(exerciseList);
+                var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+                int userIdInt = Int32.Parse(userId);
+                await ExerciseService.UpdateExerciseAsync(selectedExercise.Id, selectedExercise.Title, selectedExercise.Date, userIdInt);
+                await UpdateExerciseLists();
+                CloseDialogEdit();
             }
         }
-        CloseDialog(); // Close the modal after saving
+    }
+
+    private int selectedExerciseDeleteId;
+    
+    private void OpenDeleteModal(int exerciseId)
+    {
+        selectedExerciseDeleteId = exerciseId;
+        isModalVisible3 = true;
+    }
+    private void CloseDeleteDialog()
+    {
+        isModalVisible3 = false;
+    }
+
+    private async Task DeleteExercise()
+    {
+        if (selectedExerciseDeleteId != null)
+        {
+            await ExerciseService.DeleteExerciseAsync(selectedExerciseDeleteId);
+            await UpdateExerciseLists();
+            CloseDeleteDialog();
+        }
+    }
+    private async Task ShareExercises(DateTime day)
+    {
+    // Get the exercises for the selected day
+        var exercises = ExerciseList.Where(e => e.Date.Date == day.Date).ToList();
+         string userId = "1";
+        string comment = "idk";
+
+    // Use the ShareService to share the exercises
+        await ShareService.ShareExercisesAsync(userId, null, comment);
     }
 }
-<style>
-    .calendar {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .calendar table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    .calendar th {
-        text-align: center;
-        padding: 10px;
-        background-color: #f2f2f2;
-        font-weight: bold;
-    }
-
-    .calendar td {
-        text-align: center;
-        vertical-align: top;
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .exercises {
-        margin-bottom: 10px;
-    }
-
-    .exercise {
-        background-color: #f9f9f9;
-        padding: 5px;
-        margin-bottom: 5px;
-    }
-
-    .add-exercise-btn {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
-
-    .add-exercise-btn:hover {
-        background-color: #45a049;
-    }
-
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-dialog {
-        background-color: #fff;
-        border-radius: 4px;
-        padding: 20px;
-        max-width: 400px;
-        width: 100%;
-    }
-
-    .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-    }
-
-    .modal-title {
-        margin: 0;
-    }
-
-    .close {
-        font-size: 24px;
-        color: #aaa;
-        cursor: pointer;
-        border: none;
-        background: transparent;
-    }
-
-    .modal-body {
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 10px;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 5px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-
-    .modal-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-    }
-
-    .btn {
-        padding: 5px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background-color: #4caf50;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: #45a049;
-    }
-
-    .btn-secondary {
-        background-color: #aaa;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background-color: #999;
-    }
-</style>
-*@

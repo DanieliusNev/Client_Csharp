@@ -1,0 +1,57 @@
+﻿.card {
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    padding: 10px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.card-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.card-body {
+    padding: 10px;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+}
+
+.list-group-item {
+    font-size: 14px;
+    padding: 5px;
+}
+
+.no-posts {
+    margin-top: 20px;
+    font-style: italic;
+    color: #6c757d;
+}
+
+.comment {
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.exercises-heading {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}

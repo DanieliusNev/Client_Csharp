@@ -1,0 +1,189 @@
+﻿.calendar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.calendar-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.calendar th {
+    text-align: center;
+    padding: 10px;
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.calendar td {
+    text-align: center;
+    vertical-align: top;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.exercises {
+    margin-bottom: 10px;
+}
+
+.exercise {
+    background-color: #f9f9f9;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.add-exercise-btn {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.add-exercise-btn:hover {
+    background-color: #45a049;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.modal-title {
+    margin: 0;
+}
+
+.close {
+    font-size: 24px;
+    color: #aaa;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #4caf50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+}
+
+.btn-secondary {
+    background-color: #aaa;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #999;
+}
+
+.nav-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background-color: #45a049;
+}
+
+.week-switcher {
+    display: flex;
+    align-items: center;
+}
+
+.switch-button {
+    background-color: #fff;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.switch-button:hover {
+    color: #000;
+}
+
+h3 {
+    margin: 0;
+    padding: 0 10px;
+}
+.edit-icon {
+    margin-left: 5px;
+    cursor: pointer;
+}
