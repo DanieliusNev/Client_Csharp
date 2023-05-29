@@ -24,7 +24,7 @@ public class SharedPost
         ExerciseTitles = new List<SharedExercise>();
     }
 
-    public SharedPost(string comment, string sharedBy, List<Exercise> exercises)
+    public SharedPost(string comment, string sharedBy, List<ExerciseRegister> exercises)
     {
         Comment = comment;
         SharedBy = sharedBy;

@@ -18,7 +18,7 @@ namespace Client_Blazor_App.Service.Http
             _httpClient.BaseAddress = new Uri("http://localhost:8080");
         }
 
-        public async Task ShareExercisesAsync(string userId, List<Exercise> exercises, string comment)
+        public async Task ShareExercisesAsync(string userId, List<ExerciseRegister> exercises, string comment)
         {
             SharedPost shareData = new SharedPost(comment, userId, exercises);
 
