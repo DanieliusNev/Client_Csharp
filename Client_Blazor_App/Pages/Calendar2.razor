@@ -297,7 +297,7 @@
     {
     // Get the exercises for the selected day
         var exercises = ExerciseList.Where(e => e.Date.Date == day.Date).ToList();
-         int userId = 1;
+         string userId = "1";
         string comment = "idk";
 
     // Use the ShareService to share the exercises

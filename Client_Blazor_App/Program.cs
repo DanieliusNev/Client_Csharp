@@ -2,10 +2,12 @@ using Client_Blazor_App.Auth;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Client_Blazor_App.Data;
+using Client_Blazor_App.Pages;
 using Client_Blazor_App.Service;
 using Client_Blazor_App.Service.Http;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
+using Shared.Models;
 using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);

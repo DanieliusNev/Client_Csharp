@@ -7,6 +7,6 @@ public class SharedExercise
     [JsonPropertyName("exerciseId")]
     public int ExerciseId { get; set; }
     
-    [JsonPropertyName("title")]
+    [JsonPropertyName("exerciseTitle")]
     public string Title { get; set; }
 }

@@ -13,17 +13,22 @@ public class SharedPost
     [JsonPropertyName("comment")]
     public string Comment { get; set; }
         
-    [JsonPropertyName("userId")]
-    public int SharedBy { get; set; }
+    [JsonPropertyName("sharedBy")]
+    public string SharedBy { get; set; }
         
-    [JsonPropertyName("exercises")]
-    public List<SharedExercise> Exercises { get; set; }
+    [JsonPropertyName("exerciseTitles")]
+    public List<SharedExercise> ExerciseTitles { get; set; }
 
-    public SharedPost(string comment, int sharedBy, List<Exercise> exercises)
+    public SharedPost() 
+    {
+        ExerciseTitles = new List<SharedExercise>();
+    }
+
+    public SharedPost(string comment, string sharedBy, List<Exercise> exercises)
     {
         Comment = comment;
         SharedBy = sharedBy;
-        Exercises = exercises.Select(e => new SharedExercise { ExerciseId = e.Id, Title = e.Title }).ToList();
+        ExerciseTitles = exercises.Select(e => new SharedExercise { ExerciseId = e.Id, Title = e.Title }).ToList();
     }
 }
 

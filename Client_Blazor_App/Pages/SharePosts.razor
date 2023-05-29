@@ -1,17 +1,44 @@
 ﻿@page "/SharePosts"
-@inject HttpClient httpClient
+@using Client_Blazor_App.Service.Http
+@using global::Shared.Models
+@using Client_Blazor_App.Service
+@inject IShareService shareService
 @inject IJSRuntime jsRuntime
 
 <h1>Shared Posts</h1>
 
-<div id="sharedPostsContainer"></div>
+@if (sharedPosts != null)
+{
+    <div class="card-deck">
+        @foreach (var post in sharedPosts)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">@post.SharedDate</h5>
+                    <h6 class="card-subtitle text-muted">Posted by: @post.Comment</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var exercise in post.ExerciseTitles)
+                        {
+                            <li class="list-group-item">@exercise.Title</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No shared posts available.</p>
+}
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private List<SharedPost> sharedPosts;
+
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await jsRuntime.InvokeVoidAsync("import", "Client_Blazor_App/wwwroot/javascript/shared-posts.js");
-        }
+        sharedPosts = await shareService.GetSharedPostsByUserAsync();
     }
 }

@@ -18,7 +18,7 @@ namespace Client_Blazor_App.Service.Http
             _httpClient.BaseAddress = new Uri("http://localhost:8080");
         }
 
-        public async Task ShareExercisesAsync(int userId, List<Exercise> exercises, string comment)
+        public async Task ShareExercisesAsync(string userId, List<Exercise> exercises, string comment)
         {
             SharedPost shareData = new SharedPost(comment, userId, exercises);
 
@@ -35,9 +35,9 @@ namespace Client_Blazor_App.Service.Http
         }
         
 
-        public async Task<List<SharedPost>> GetSharedPostsByUserAsync(int userId)
+        public async Task<List<SharedPost>> GetSharedPostsByUserAsync()
         {
-            var response = await _httpClient.GetAsync($"exercises/sharedPosts/{userId}");
+            var response = await _httpClient.GetAsync("exercises/sharedPosts");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -45,9 +45,9 @@ namespace Client_Blazor_App.Service.Http
                 foreach (var sharedPost in sharedPosts)
                 {
                     Console.WriteLine($"Shared Post: Id={sharedPost.PostId}, Date={sharedPost.SharedDate}, Comment={sharedPost.Comment}, SharedBy={sharedPost.SharedBy}");
-                    foreach (var exercise in sharedPost.Exercises)
+                    foreach (var exercise in sharedPost.ExerciseTitles)
                     {
-                        Console.WriteLine($"Shared Exercise: ExerciseId={exercise.ExerciseId}, Title={exercise.Title}");
+                        Console.WriteLine($"Shared Exercise: Title={exercise.Title}");
                     }
                 }
                 return sharedPosts;

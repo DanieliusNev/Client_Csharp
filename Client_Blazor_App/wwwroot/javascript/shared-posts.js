@@ -1,3 +1,4 @@
+/*
 // shared-posts.js
 
 // Function to create HTML cards for the shared posts
@@ -36,35 +37,13 @@ function createPostCard(post) {
 // Function to display the shared posts in the HTML container
 function displaySharedPosts(sharedPosts) {
     const sharedPostsContainer = document.getElementById('sharedPostsContainer');
-    const parsedPosts = JSON.parse(sharedPosts);
 
     // Create cards for each shared post
-    const postCards = parsedPosts.map((post) => createPostCard(post));
+    const postCards = sharedPosts.map((post) => createPostCard(post));
 
     // Add the cards to the container
     postCards.forEach((card) => {
         sharedPostsContainer.appendChild(card);
     });
 }
-
-// Function to fetch shared posts from the server
-async function fetchSharedPosts() {
-    try {
-        const response = await fetch('/shared-posts'); // Replace with the appropriate server endpoint
-        const sharedPosts = await response.json();
-        return sharedPosts;
-    } catch (error) {
-        console.error('Failed to fetch shared posts:', error);
-        return [];
-    }
-}
-
-// Call the function to fetch and display the shared posts
-fetchSharedPosts()
-    .then((sharedPosts) => {
-        const sharedPostsJson = JSON.stringify(sharedPosts);
-        displaySharedPosts(sharedPostsJson);
-    })
-    .catch((error) => {
-        console.error('Failed to fetch and display shared posts:', error);
-    });
+*/
