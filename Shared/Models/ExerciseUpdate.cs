@@ -12,13 +12,20 @@ public class ExerciseUpdate
     public DateTime Date { get; set; }
     [JsonPropertyName("userId")]
     public int UserId { get; set; }
-    
-
-    public ExerciseUpdate(int id, string title, DateTime date, int userId)
+    [JsonPropertyName("weights")]
+    public string Weights { get; set; }
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; }
+    [JsonPropertyName("categoryId")]
+    public int CategoryId { get; set; }
+    public ExerciseUpdate(int id, string title, DateTime date, string weights, string amount, int categoryId, int userId)
     {
         Id = id;
         Title = title;
         Date = date;
+        Weights = weights;
+        Amount = amount;
+        CategoryId = categoryId;
         UserId = userId;
     }
 

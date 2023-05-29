@@ -4,7 +4,7 @@ namespace Shared.Models;
 
 public class ExerciseRegister
 {
-    [JsonIgnore]
+    [JsonPropertyName("id")]
     public int Id { get; set; }
     [JsonPropertyName("title")]
     public string Title { get; set; }
@@ -25,14 +25,6 @@ public class ExerciseRegister
         Weights = weights;
         Amount = amount;
         CategoryId = categoryId;
-        UserId = userId;
-    }
-
-
-    public ExerciseRegister(string title, DateTime date, int userId)
-    {
-        Title = title;
-        Date = date;
         UserId = userId;
     }
 

@@ -38,7 +38,7 @@ namespace Client_Blazor_App.Service.Http
         }*/
         public async Task RegisterExerciseAsync(string title, DateTime date, string weights, string amount, int categoryId, int userId)
         {
-            ExerciseRegister exercise = new ExerciseRegister(title, date, weights, amount, categoryId, userId);
+            Exercise exercise = new Exercise(title, date, weights, amount, categoryId, userId);
 
             var json = JsonSerializer.Serialize(exercise);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -92,9 +92,9 @@ namespace Client_Blazor_App.Service.Http
                 return null;
             }
         }
-        public async Task UpdateExerciseAsync(int id, string title, DateTime date, int userId)
+        public async Task UpdateExerciseAsync(int id, string title, DateTime date, string weights, string amount, int categoryId, int userId)
         {
-            ExerciseUpdate exercise = new ExerciseUpdate(id, title, date, userId);
+            ExerciseUpdate exercise = new ExerciseUpdate(id, title, date, weights, amount, categoryId, userId);
 
             var json = JsonSerializer.Serialize(exercise);
             var content = new StringContent(json, Encoding.UTF8, "application/json");

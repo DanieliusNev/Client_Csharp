@@ -149,6 +149,26 @@
                     <label for="exerciseDate">Exercise Date:</label>
                     <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
                 </div>
+                <div class="form-group">
+                    <label for="exerciseWeights">Weights:</label>
+                    <input type="text" class="form-control" id="exerciseWeights" @bind="exerciseWeights">
+                </div>
+                
+                <div class="form-group">
+                    <label for="exerciseAmount">Amount:</label>
+                    <input type="text" class="form-control" id="exerciseAmount" @bind="exerciseAmount">
+                </div>
+                
+                <div class="form-group">
+                    <label for="exerciseCategory">Exercise Category:</label>
+                    <select class="form-control" id="exerciseCategory" @bind="selectedCategoryId">
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Id">@category.Title</option>
+                        }
+                    </select>
+                </div>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseDialogEdit">Cancel</button>
@@ -265,20 +285,7 @@
         isModalVisible = true;
         exerciseDate = date;
     }
-
-    /*private async Task SaveExercise()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity.IsAuthenticated)
-        {
-            var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
-            int userIdInt = Int32.Parse(userId);
-            await ExerciseService.RegisterExerciseAsync(exerciseTitle, exerciseDate, userIdInt);
-            await UpdateExerciseLists();
-            CloseDialog();
-        }
-    }*/
+    
     private async Task SaveExercise()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -314,6 +321,9 @@
     {
         selectedExercise = exercise;
         exerciseTitle = exercise.Title;
+        exerciseAmount = exercise.Amount;
+        exerciseWeights = exercise.Weights;
+        selectedCategoryId = exercise.CategoryId;
         exerciseDate = exercise.Date;
         isModalVisible2 = true;
     }
@@ -321,6 +331,9 @@
     {
         isModalVisible2 = false;
         exerciseTitle = null;
+        exerciseAmount = null;
+        exerciseWeights = null;
+        
         exerciseDate = DateTime.MinValue;
     }
 
@@ -337,7 +350,7 @@
             {
                 var userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
                 int userIdInt = Int32.Parse(userId);
-                await ExerciseService.UpdateExerciseAsync(selectedExercise.Id, selectedExercise.Title, selectedExercise.Date, userIdInt);
+                await ExerciseService.UpdateExerciseAsync(selectedExercise.Id, selectedExercise.Title, selectedExercise.Date,selectedExercise.Weights, selectedExercise.Amount, selectedExercise.CategoryId, userIdInt);
                 await UpdateExerciseLists();
                 CloseDialogEdit();
             }

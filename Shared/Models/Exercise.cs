@@ -5,7 +5,7 @@ namespace Shared.Models;
 
 public class Exercise
 {
-    [JsonPropertyName("id")]
+    [JsonIgnore]
     public int Id { get; set; }
     [JsonPropertyName("title")]
     public string Title { get; set; }
@@ -13,20 +13,19 @@ public class Exercise
     public DateTime Date { get; set; }
     [JsonPropertyName("userId")]
     public int UserId { get; set; }
-
-    public Exercise(string title, DateTime date, int idUser)
+    [JsonPropertyName("weights")]
+    public string Weights { get; set; }
+    [JsonPropertyName("amount")]
+    public string Amount { get; set; }
+    [JsonPropertyName("categoryId")]
+    public int CategoryId { get; set; }
+    public Exercise(string title, DateTime date, string weights, string amount, int categoryId, int userId)
     {
-        
-        Title = title;
-        Date = date.Date; // Set only the date component, without the time
-        UserId = idUser;
-    }
-
-    public Exercise(int id, string title, DateTime date, int userId)
-    {
-        Id = id;
         Title = title;
         Date = date;
+        Weights = weights;
+        Amount = amount;
+        CategoryId = categoryId;
         UserId = userId;
     }
 
