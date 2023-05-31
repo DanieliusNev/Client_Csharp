@@ -20,22 +20,7 @@ namespace Client_Blazor_App.Service.Http
             _httpClient.BaseAddress = new Uri("http://localhost:8080");
             _httpContextAccessor = httpContextAccessor;
         }
-
-        /*public async Task RegisterExerciseAsync(string title, DateTime date, int userId)
-        {
-            ExerciseRegister exercise = new ExerciseRegister(title, date, userId);
-
-                var json = JsonSerializer.Serialize(exercise);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync("registerExercises", content);
-
-                string responseContent = await response.Content.ReadAsStringAsync();
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception(responseContent);
-                }
-        }*/
+        
         public async Task RegisterExerciseAsync(string title, DateTime date, string weights, string amount, int categoryId, int userId)
         {
             ExerciseRegistration exerciseRegistration = new ExerciseRegistration(title, date, weights, amount, categoryId, userId);
@@ -73,25 +58,7 @@ namespace Client_Blazor_App.Service.Http
                 return null;
             }
         }
-
-        public async Task<List<ExerciseRegistration>> GetUserExercisesAsync(int userId)
-        {
-            var response = await _httpClient.GetAsync($"exercises/{userId}");
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                var exercises = JsonSerializer.Deserialize<List<ExerciseRegistration>>(content);
-                foreach (var exercise in exercises)
-                {
-                    Console.WriteLine($"Exercise: Title={exercise.Title}, Date={exercise.Date}, UserId={exercise.UserId}");
-                }
-                return exercises;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        
         public async Task UpdateExerciseAsync(int id, string title, DateTime date, string weights, string amount, int categoryId, int userId)
         {
             ExerciseUpdate exercise = new ExerciseUpdate(id, title, date, weights, amount, categoryId, userId);

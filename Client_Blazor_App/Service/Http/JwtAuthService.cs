@@ -65,10 +65,6 @@ namespace Client_Blazor_App.Service.Http
 
         private async Task<UserState> AuthenticateUserAsync(string username, string password)
         {
-            // Make the login request to the server and retrieve the user information
-            // Modify this method to match your actual login request implementation
-
-            // Example implementation using HttpClient:
             var httpClient = new HttpClient();
             var request = new
             {
