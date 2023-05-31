@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: center;
     margin-top: 20px;
+    
 }
 
 .calendar-header {
@@ -43,16 +44,17 @@
 }
 
 .add-exercise-btn {
-    margin-top: 10px;
     padding: 5px 10px;
-    background-color: #4caf50;
-    color: white;
+    background-color: #ffffff;
+    color: #000000;
     border: none;
     cursor: pointer;
+    border: 1px;
+    border-color: black;
 }
 
 .add-exercise-btn:hover {
-    background-color: #45a049;
+    background-color: #cccccc;
 }
 
 .modal {
@@ -186,4 +188,83 @@ h3 {
 .edit-icon {
     margin-left: 5px;
     cursor: pointer;
+}
+.share-exercises-btn {
+    padding: 5px 10px;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    border: 1px;
+    border-color: black;
+}
+.share-exercises-btn:hover {
+    background-color: #cccccc;
+}
+.exercise.category-1 {
+    background-color: #D3D3D3; /* Light Gray */
+}
+
+.exercise.category-2 {
+    background-color: #ADD8E6; /* Pale Blue */
+}
+
+.exercise.category-3 {
+    background-color: #98FF98; /* Mint Green */
+}
+
+.exercise.category-4 {
+    background-color: #E6E6FA; /* Lavender */
+}
+
+.exercise.category-5 {
+    background-color: #FFE5B4; /* Peach */
+}
+
+.exercise.category-6 {
+    background-color: #87CEEB; /* Sky Blue */
+}
+
+.exercise.category-7 {
+    background-color: #FFC0CB; /* Soft Pink */
+}
+
+.exercise.category-8 {
+    background-color: #FFFFF0; /* Ivory */
+}
+
+.exercise.category-9 {
+    background-color: #FFFF99; /* Pale Yellow */
+}
+
+.exercise.category-10 {
+    background-color: #C8A2C8; /* Lilac */
+}
+
+.exercise.category-11 {
+    background-color: #20B2AA; /* Seafoam Green */
+}
+
+.exercise.category-12 {
+    background-color: #98FB98; /* Pale Green */
+}
+
+.exercise.category-13 {
+    background-color: #CCCCFF; /* Periwinkle */
+}
+
+.exercise.category-14 {
+    background-color: #FF7F50; /* Coral */
+}
+
+.exercise.category-15 {
+    background-color: #F7E7CE; /* Champagne */
+}
+
+.exercise.category-16 {
+    background-color: #FADADD; /* Pale Pink */
+}
+
+.exercise.category-17 {
+    background-color: #89CFF0; /* Baby Blue */
 }

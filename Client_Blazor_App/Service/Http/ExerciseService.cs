@@ -12,13 +12,12 @@ namespace Client_Blazor_App.Service.Http
     public class ExerciseService : IExerciseService
     {
         private readonly HttpClient _httpClient;
-        private readonly HttpContextAccessor _httpContextAccessor;
+        
 
-        public ExerciseService(HttpClient httpClient, HttpContextAccessor httpContextAccessor)
+        public ExerciseService(HttpClient httpClient)
         {
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri("http://localhost:8080");
-            _httpContextAccessor = httpContextAccessor;
         }
         
         public async Task RegisterExerciseAsync(string title, DateTime date, string weights, string amount, int categoryId, int userId)

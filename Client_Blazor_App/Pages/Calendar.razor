@@ -38,7 +38,7 @@
                                     {
                                         @if (day.Date == exercise.Date)
                                         {
-                                            <div class="exercise">
+                                            <div class="exercise @GetCategoryClass(exercise.CategoryId)">
                                                 <div>@exercise.Title</div>
                                                 <i class="fas fa-pen edit-icon" @onclick="() => OpenEditModal(exercise)"></i>
                                                 <i class="fas fa-trash delete-icon" @onclick="() => OpenDeleteModal(exercise.Id)"></i>
@@ -53,7 +53,7 @@
                                 <i class="fas fa-plus"></i>
                             </button>
                             
-                            <button type="button" class="share-exercises-btn" @onclick="() => ShareExercises(day)">
+                            <button type="button" class="share-exercises-btn" @onclick="() => OpenShareModal(day)">
                                 <i class="fas fa-share-alt"></i>
                             </button>
                             
@@ -64,7 +64,7 @@
         </tbody>
     </table>
 </div>
-
+@*//Add exercise pop up*@
 <div class="modal" style="display: @(isModalVisible ? "block" : "none")">
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
@@ -75,23 +75,23 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="exerciseTitle">Exercise Title:</label>
+                    <label for="exerciseTitle">Exercise Name:</label>
                     <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseDate">Exercise Date:</label>
+                    <label for="exerciseDate">Date:</label>
                     <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseWeights">Weights:</label>
+                    <label for="exerciseWeights">Weights/Reps:</label>
                     <input type="text" class="form-control" id="exerciseWeights" @bind="exerciseWeights">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseAmount">Amount:</label>
+                    <label for="exerciseAmount">Amount/Duration:</label>
                     <input type="text" class="form-control" id="exerciseAmount" @bind="exerciseAmount">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseCategory">Exercise Category:</label>
+                    <label for="exerciseCategory">Category:</label>
                     <select class="form-control" id="exerciseCategory" @bind="selectedCategoryId">
                         @foreach (var category in categories)
                         {
@@ -107,6 +107,7 @@
         </div>
     </div>
 </div>
+@*//Edit Exercise Pop up*@
 <div class="modal" style="display: @(isModalVisible2 ? "block" : "none")">
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
@@ -117,25 +118,25 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="exerciseTitle">Exercise Title:</label>
+                    <label for="exerciseTitle">Exercise Name:</label>
                     <input type="text" class="form-control" id="exerciseTitle" @bind="exerciseTitle">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseDate">Exercise Date:</label>
+                    <label for="exerciseDate">Date:</label>
                     <input type="date" class="form-control" id="exerciseDate" @bind="exerciseDate">
                 </div>
                 <div class="form-group">
-                    <label for="exerciseWeights">Weights:</label>
+                    <label for="exerciseWeights">Weights/Reps:</label>
                     <input type="text" class="form-control" id="exerciseWeights" @bind="exerciseWeights">
                 </div>
                 
                 <div class="form-group">
-                    <label for="exerciseAmount">Amount:</label>
+                    <label for="exerciseAmount">Amount/Duration:</label>
                     <input type="text" class="form-control" id="exerciseAmount" @bind="exerciseAmount">
                 </div>
                 
                 <div class="form-group">
-                    <label for="exerciseCategory">Exercise Category:</label>
+                    <label for="exerciseCategory">Category:</label>
                     <select class="form-control" id="exerciseCategory" @bind="selectedCategoryId">
                         @foreach (var category in categories)
                         {
@@ -152,6 +153,7 @@
         </div>
     </div>
 </div>
+@*//Delete Pop up*@
 <div class="modal" style="display: @(isModalVisible3 ? "block" : "none")">
     <div class="modal-overlay"></div>
     <div class="modal-dialog">
@@ -170,7 +172,29 @@
         </div>
     </div>
 </div>
+@*//Share pop up*@
+<div class="modal" style="display: @(isModalVisibleShare ? "block" : "none")">
+    <div class="modal-overlay"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="CloseShareDialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="postComment">Post Comment:</label>
+                    <input type="text" class="form-control" id="postComment" @bind="PostComment">
+                </div>
 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="CloseShareDialog">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="ShareExercises">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
 @code {
 
     private IEnumerable<Exercise>? ExerciseList;
@@ -189,6 +213,8 @@
     private bool isModalVisible2 = false;
     private bool isModalVisible3 = false;
 
+    private string PostComment;
+    private bool isModalVisibleShare = false;
     
     protected override async Task OnInitializedAsync()
     {
@@ -197,12 +223,32 @@
         categories = new List<Category>
         {
             new Category { Id = 1, Title = "Legs" },
-            new Category { Id = 2, Title = "Body" },
-            new Category { Id = 3, Title = "Arms" }
+            new Category { Id = 2, Title = "Arms" },
+            new Category { Id = 3, Title = "Chest" },
+            new Category { Id = 4, Title = "Back" },
+            new Category { Id = 5, Title = "Shoulders" },
+            new Category { Id = 6, Title = "Core" },
+            new Category { Id = 7, Title = "Cardio" },
+            new Category { Id = 8, Title = "Full Body" },
+            new Category { Id = 9, Title = "HIIT" },
+            new Category { Id = 10, Title = "Strength Training" },
+            new Category { Id = 11, Title = "Flexibility" },
+            new Category { Id = 12, Title = "Balance" },
+            new Category { Id = 13, Title = "Plyometrics" },
+            new Category { Id = 14, Title = "Yoga" },
+            new Category { Id = 15, Title = "Pilates" },
+            new Category { Id = 16, Title = "Functional Training" },
+            new Category { Id = 17, Title = "Stretching" }
         };
         await UpdateExerciseLists();
     }
+    private string GetCategoryClass(int categoryId)
+    {
+        var category = categories.FirstOrDefault(c => c.Id == categoryId);
+        return category != null ? $"category-{category.Id}" : string.Empty;
+    }
 
+    
     private List<DateTime> GetWeekDates(DateTime date)
     {
         var monday = date.Date.AddDays(-(int)date.DayOfWeek + 1); // Get the previous Monday
@@ -354,14 +400,35 @@
             CloseDeleteDialog();
         }
     }
-    private async Task ShareExercises(DateTime day)
-    {
-    // Get the exercises for the selected day
-        var exercises = ExerciseList.Where(e => e.Date.Date == day.Date).ToList();
-         string userId = "1";
-        string comment = "idk";
 
-    // Use the ShareService to share the exercises
-        await ShareService.ShareExercisesAsync(userId, exercises, comment);
+    private DateTime dayShare;
+
+    private void CloseShareDialog()
+    {
+        isModalVisibleShare = false;
+        PostComment = null;
+    }
+
+    private void OpenShareModal(DateTime day)
+    {
+        PostComment = null;
+        isModalVisibleShare = true;
+        dayShare = day;
+    }
+    private async Task ShareExercises()
+    {
+        if (PostComment != null)
+        {
+            var exercises = ExerciseList.Where(e => e.Date.Date == dayShare.Date).ToList();
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            if (user.Identity.IsAuthenticated)
+            {
+                string userId = user.Claims.First(claim => claim.Type.Equals("UserId")).Value;
+                
+                await ShareService.ShareExercisesAsync(userId, exercises, PostComment);
+                CloseShareDialog();
+            }
+        }
     }
 }
